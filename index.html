@@ -1,0 +1,2860 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>ISHPREET RECORDS | ISHPREETRECORDS.PUBLICVM.COM — Ishpreet The Gamer</title>
+    <style>
+        /* ==================== 1. DESIGN TOKENS & BASE RESET ==================== */
+        :root {
+            --bg-void: #040406;
+            --bg-surface: rgba(14, 14, 19, 0.88);
+            --bg-elevated: rgba(22, 22, 30, 0.94);
+            --border-subtle: rgba(255, 255, 255, 0.1);
+            --border-gold: rgba(212, 175, 55, 0.42);
+            --gold-bright: #f7dc81;
+            --gold: #d4af37;
+            --gold-deep: #967225;
+            --crimson: #dc2626;
+            --crimson-glow: rgba(220, 38, 38, 0.22);
+            --text-main: #ffffff;
+            --text-soft: #e4e4e7;
+            --text-muted: #a1a1aa;
+            --radius-sm: 10px;
+            --radius-md: 14px;
+            --radius-lg: 20px;
+            --radius-xl: 26px;
+            --font-sans: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
+            --font-mono: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, monospace;
+        }
+
+        *, *::before, *::after {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+        }
+
+        html {
+            scroll-behavior: smooth;
+            background-color: var(--bg-void);
+            color: var(--text-main);
+            font-family: var(--font-sans);
+            -webkit-text-size-adjust: 100%;
+        }
+
+        body {
+            background-color: var(--bg-void);
+            color: var(--text-main);
+            line-height: 1.55;
+            overflow-x: hidden;
+            min-height: 100vh;
+            position: relative;
+        }
+
+        a {
+            color: inherit;
+            text-decoration: none;
+        }
+
+        button, input, select, textarea {
+            font-family: inherit;
+            color: inherit;
+        }
+
+        button {
+            cursor: pointer;
+            border: none;
+            background: none;
+        }
+
+        svg {
+            display: block;
+            max-width: 100%;
+        }
+
+        /* High-contrast Smart TV / D-Pad Focus Rings */
+        a:focus-visible, button:focus-visible, input:focus-visible, select:focus-visible, textarea:focus-visible {
+            outline: 3px solid var(--gold-bright);
+            outline-offset: 3px;
+        }
+
+        .hidden {
+            display: none !important;
+        }
+
+        /* ==================== 2. 3D BACKGROUND STAGE ==================== */
+        #bg-3d-canvas {
+            position: fixed;
+            inset: 0;
+            width: 100%;
+            height: 100%;
+            z-index: 0;
+            pointer-events: none;
+        }
+
+        .site-layer {
+            position: relative;
+            z-index: 2;
+        }
+
+        .container {
+            width: 100%;
+            max-width: 1300px;
+            margin: 0 auto;
+            padding: 0 18px;
+        }
+
+        .gold-text {
+            background: linear-gradient(135deg, var(--gold-bright) 0%, var(--gold) 50%, var(--gold-deep) 100%);
+            -webkit-background-clip: text;
+            background-clip: text;
+            color: transparent;
+        }
+
+        /* ==================== 3. BUTTONS & 3D TILT CARDS ==================== */
+        .btn-gold {
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            gap: 10px;
+            min-height: 48px;
+            padding: 12px 22px;
+            border-radius: var(--radius-md);
+            background: linear-gradient(135deg, var(--gold-bright), var(--gold), var(--gold-deep));
+            color: #050505;
+            font-weight: 800;
+            font-size: 0.9rem;
+            letter-spacing: 0.03em;
+            box-shadow: 0 10px 28px rgba(212, 175, 55, 0.28);
+            transition: transform 0.15s ease, filter 0.15s ease;
+        }
+
+        .btn-gold:hover {
+            filter: brightness(1.08);
+        }
+
+        .btn-gold:active {
+            transform: scale(0.97);
+        }
+
+        .btn-dark {
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            gap: 8px;
+            min-height: 48px;
+            padding: 12px 20px;
+            border-radius: var(--radius-md);
+            background: var(--bg-elevated);
+            border: 1px solid var(--border-gold);
+            color: var(--gold-bright);
+            font-weight: 700;
+            font-size: 0.88rem;
+            transition: background 0.15s ease, transform 0.15s ease;
+        }
+
+        .btn-dark:hover {
+            background: rgba(212, 175, 55, 0.16);
+        }
+
+        .btn-dark:active {
+            transform: scale(0.97);
+        }
+
+        /* 3D Perspective Card Base */
+        .tilt-3d {
+            position: relative;
+            transform-style: preserve-3d;
+            transition: transform 0.22s cubic-bezier(0.22, 1, 0.36, 1), box-shadow 0.22s ease, border-color 0.22s ease;
+            will-change: transform;
+        }
+
+        .tilt-3d::after {
+            content: "";
+            position: absolute;
+            inset: 0;
+            border-radius: inherit;
+            pointer-events: none;
+            background: radial-gradient(circle at var(--mx, 50%) var(--my, 50%), rgba(247, 220, 129, 0.15), transparent 60%);
+            opacity: 0;
+            transition: opacity 0.25s ease;
+        }
+
+        .tilt-3d:hover::after {
+            opacity: 1;
+        }
+
+        /* ==================== 4. STICKY GLASS NAVBAR ==================== */
+        .navbar {
+            position: sticky;
+            top: 0;
+            z-index: 100;
+            background: rgba(4, 4, 6, 0.88);
+            backdrop-filter: blur(14px);
+            -webkit-backdrop-filter: blur(14px);
+            border-bottom: 1px solid var(--border-gold);
+        }
+
+        .nav-inner {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            min-height: 70px;
+            gap: 12px;
+        }
+
+        .brand-link {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            min-width: 0;
+        }
+
+        .brand-logo-box {
+            width: 44px;
+            height: 44px;
+            border-radius: 11px;
+            background: #000000;
+            border: 1px solid var(--border-gold);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            flex-shrink: 0;
+            box-shadow: 0 0 18px rgba(212, 175, 55, 0.2);
+        }
+
+        .brand-title {
+            font-weight: 900;
+            font-size: 1rem;
+            letter-spacing: 0.12em;
+            line-height: 1.1;
+            display: block;
+        }
+
+        .brand-domain {
+            font-family: var(--font-mono);
+            font-size: 0.65rem;
+            color: var(--gold-bright);
+            letter-spacing: 0.08em;
+            opacity: 0.9;
+            display: block;
+            margin-top: 3px;
+        }
+
+        .nav-links {
+            display: none;
+            align-items: center;
+            gap: 8px;
+        }
+
+        .nav-links a {
+            padding: 10px 14px;
+            border-radius: var(--radius-sm);
+            font-size: 0.88rem;
+            font-weight: 600;
+            color: var(--text-soft);
+            transition: color 0.15s ease, background 0.15s ease;
+        }
+
+        .nav-links a:hover {
+            color: var(--gold-bright);
+            background: rgba(255, 255, 255, 0.06);
+        }
+
+        .mobile-toggle {
+            width: 48px;
+            height: 48px;
+            border-radius: 12px;
+            background: var(--bg-elevated);
+            border: 1px solid var(--border-gold);
+            color: var(--gold-bright);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 1.25rem;
+        }
+
+        .mobile-drawer {
+            background: rgba(10, 10, 14, 0.97);
+            border-bottom: 1px solid var(--border-gold);
+            padding: 14px 18px 22px;
+            display: flex;
+            flex-direction: column;
+            gap: 8px;
+        }
+
+        .mobile-drawer a, .mobile-drawer button.drawer-item {
+            display: flex;
+            align-items: center;
+            min-height: 48px;
+            padding: 12px 16px;
+            border-radius: 12px;
+            background: rgba(255, 255, 255, 0.04);
+            color: var(--text-main);
+            font-weight: 600;
+            font-size: 0.95rem;
+            text-align: left;
+        }
+
+        .mobile-drawer a:hover, .mobile-drawer button.drawer-item:hover {
+            background: rgba(212, 175, 55, 0.16);
+            color: var(--gold-bright);
+        }
+
+        /* ==================== 5. 3D HERO SECTION & LOGO CREST CARD ==================== */
+        .hero {
+            padding: 38px 0 68px;
+        }
+
+        .hero-grid {
+            display: grid;
+            grid-template-columns: 1fr;
+            gap: 32px;
+            align-items: center;
+        }
+
+        .hero-copy {
+            display: flex;
+            flex-direction: column;
+            gap: 18px;
+        }
+
+        .badge-row {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 8px;
+        }
+
+        .pill-domain {
+            display: inline-flex;
+            align-items: center;
+            gap: 8px;
+            min-height: 36px;
+            padding: 6px 13px;
+            border-radius: 999px;
+            background: var(--bg-elevated);
+            border: 1px solid var(--border-gold);
+            font-family: var(--font-mono);
+            font-size: 0.72rem;
+            font-weight: 700;
+            color: var(--gold-bright);
+            transition: background 0.15s ease;
+        }
+
+        .pill-domain:hover {
+            background: rgba(212, 175, 55, 0.18);
+        }
+
+        .pill-founder {
+            display: inline-flex;
+            align-items: center;
+            gap: 8px;
+            min-height: 36px;
+            padding: 6px 13px;
+            border-radius: 999px;
+            background: var(--crimson-glow);
+            border: 1px solid rgba(220, 38, 38, 0.5);
+            font-size: 0.73rem;
+            font-weight: 800;
+            color: #fca5a5;
+            text-transform: uppercase;
+            letter-spacing: 0.05em;
+        }
+
+        .hero-title {
+            font-size: clamp(2.2rem, 6vw, 4.2rem);
+            font-weight: 900;
+            line-height: 1.05;
+            letter-spacing: -0.02em;
+            text-shadow: 0 12px 32px rgba(0, 0, 0, 0.8);
+        }
+
+        .hero-sub {
+            font-size: 0.96rem;
+            font-weight: 700;
+            color: var(--gold-bright);
+        }
+
+        .hero-desc {
+            color: var(--text-soft);
+            font-size: 0.98rem;
+            max-width: 620px;
+        }
+
+        .hero-actions {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 12px;
+            padding-top: 4px;
+        }
+
+        .hero-actions > * {
+            flex: 1 1 220px;
+        }
+
+        /* 3D Logo Crest Card */
+        .logo-card {
+            background: rgba(4, 4, 6, 0.92);
+            backdrop-filter: blur(12px);
+            border: 2px solid var(--border-gold);
+            border-radius: var(--radius-xl);
+            padding: 20px;
+            box-shadow: 0 28px 70px rgba(0, 0, 0, 0.9), 0 0 45px rgba(212, 175, 55, 0.15);
+            display: flex;
+            flex-direction: column;
+            gap: 16px;
+        }
+
+        .logo-card-top {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            gap: 8px;
+            flex-wrap: wrap;
+        }
+
+        .tag-official {
+            font-size: 0.68rem;
+            font-weight: 800;
+            text-transform: uppercase;
+            letter-spacing: 0.14em;
+            color: var(--gold-bright);
+            background: rgba(212, 175, 55, 0.14);
+            border: 1px solid var(--border-gold);
+            padding: 5px 10px;
+            border-radius: 8px;
+        }
+
+        .copy-id-btn {
+            font-family: var(--font-mono);
+            font-size: 0.72rem;
+            font-weight: 700;
+            color: var(--text-soft);
+            background: var(--bg-elevated);
+            border: 1px solid var(--border-subtle);
+            padding: 6px 11px;
+            border-radius: 8px;
+            min-height: 36px;
+        }
+
+        .copy-id-btn:hover {
+            border-color: var(--gold);
+            color: var(--gold-bright);
+        }
+
+        .logo-showcase-frame {
+            background: #000000;
+            border: 1px solid rgba(212, 175, 55, 0.28);
+            border-radius: var(--radius-lg);
+            padding: 16px 12px;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            box-shadow: inset 0 0 30px rgba(212, 175, 55, 0.08);
+        }
+
+        .streaming-box {
+            background: rgba(14, 14, 19, 0.92);
+            border: 1px solid var(--border-subtle);
+            border-radius: var(--radius-lg);
+            padding: 14px;
+            display: flex;
+            flex-direction: column;
+            gap: 10px;
+        }
+
+        .streaming-box-header {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            font-size: 0.72rem;
+            font-weight: 800;
+            text-transform: uppercase;
+            letter-spacing: 0.08em;
+            color: var(--gold-bright);
+        }
+
+        .platform-grid {
+            display: grid;
+            grid-template-columns: repeat(2, 1fr);
+            gap: 8px;
+        }
+
+        .platform-pill {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            min-height: 48px;
+            padding: 8px 10px;
+            border-radius: 12px;
+            background: #07070a;
+            border: 1px solid var(--border-subtle);
+            transition: border-color 0.15s ease, background 0.15s ease, transform 0.15s ease;
+            min-width: 0;
+        }
+
+        .platform-pill:hover {
+            border-color: var(--gold);
+            background: rgba(212, 175, 55, 0.1);
+            transform: translateY(-2px);
+        }
+
+        .platform-dot {
+            width: 28px;
+            height: 28px;
+            border-radius: 8px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-weight: 900;
+            font-size: 0.72rem;
+            flex-shrink: 0;
+        }
+
+        .platform-meta {
+            min-width: 0;
+        }
+
+        .platform-name {
+            display: block;
+            font-size: 0.76rem;
+            font-weight: 800;
+            color: #ffffff;
+            white-space: nowrap;
+            overflow: hidden;
+            text-overflow: ellipsis;
+        }
+
+        .platform-handle {
+            display: block;
+            font-size: 0.65rem;
+            color: var(--text-muted);
+            white-space: nowrap;
+            overflow: hidden;
+            text-overflow: ellipsis;
+        }
+
+        /* ==================== 6. 3D VINYL STUDIO DECK & DISCOGRAPHY ==================== */
+        .section {
+            padding: 64px 0;
+            border-top: 1px solid rgba(212, 175, 55, 0.22);
+        }
+
+        .section-glass {
+            background: rgba(7, 7, 10, 0.76);
+            backdrop-filter: blur(8px);
+        }
+
+        .section-header {
+            text-align: center;
+            max-width: 780px;
+            margin: 0 auto 36px;
+            display: flex;
+            flex-direction: column;
+            gap: 10px;
+        }
+
+        .section-eyebrow {
+            font-size: 0.74rem;
+            font-weight: 800;
+            letter-spacing: 0.2em;
+            text-transform: uppercase;
+            color: var(--gold);
+        }
+
+        .section-title {
+            font-size: clamp(1.75rem, 4.5vw, 3rem);
+            font-weight: 900;
+            line-height: 1.12;
+        }
+
+        .section-desc {
+            color: var(--text-soft);
+            font-size: 0.95rem;
+        }
+
+        .summary-grid {
+            display: grid;
+            grid-template-columns: 1fr;
+            gap: 12px;
+            margin-bottom: 28px;
+        }
+
+        .summary-card {
+            background: rgba(6, 6, 9, 0.92);
+            border: 1px solid var(--border-gold);
+            border-radius: var(--radius-md);
+            padding: 14px 16px;
+            display: flex;
+            align-items: center;
+            gap: 12px;
+        }
+
+        .summary-card.crimson {
+            border-color: rgba(220, 38, 38, 0.5);
+        }
+
+        .summary-icon {
+            width: 42px;
+            height: 42px;
+            border-radius: 10px;
+            background: rgba(212, 175, 55, 0.16);
+            color: var(--gold-bright);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-weight: 900;
+            flex-shrink: 0;
+        }
+
+        .summary-card.crimson .summary-icon {
+            background: var(--crimson-glow);
+            color: #fca5a5;
+        }
+
+        /* 3D Now Playing Vinyl Deck */
+        .player-deck {
+            background: var(--bg-surface);
+            backdrop-filter: blur(14px);
+            border: 2px solid var(--border-gold);
+            border-radius: var(--radius-xl);
+            padding: 22px;
+            margin-bottom: 32px;
+            box-shadow: 0 24px 60px rgba(0, 0, 0, 0.85), 0 0 36px rgba(212, 175, 55, 0.12);
+            display: flex;
+            flex-direction: column;
+            gap: 20px;
+        }
+
+        .deck-top {
+            display: flex;
+            flex-direction: column;
+            gap: 18px;
+            padding-bottom: 18px;
+            border-bottom: 1px solid var(--border-subtle);
+        }
+
+        .deck-info {
+            display: flex;
+            align-items: center;
+            gap: 16px;
+            min-width: 0;
+        }
+
+        /* Spinning 3D Gold & Black Vinyl Disc */
+        @keyframes spinVinyl {
+            from { transform: rotate(0deg); }
+            to { transform: rotate(360deg); }
+        }
+
+        .vinyl-stage {
+            width: 82px;
+            height: 82px;
+            flex-shrink: 0;
+            perspective: 600px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .vinyl-disc {
+            width: 78px;
+            height: 78px;
+            border-radius: 50%;
+            background:
+                radial-gradient(circle at center, #050505 0 7px, var(--gold) 8px 10px, #121216 11px 22px, rgba(212, 175, 55, 0.35) 23px, #09090d 24px 31px, rgba(212, 175, 55, 0.3) 32px, #050505 33px 100%);
+            border: 2px solid var(--gold);
+            box-shadow: 0 0 22px rgba(212, 175, 55, 0.32), inset 0 0 12px rgba(255, 255, 255, 0.15);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            position: relative;
+            animation: spinVinyl 4s linear infinite;
+            animation-play-state: paused;
+        }
+
+        .vinyl-disc.spinning {
+            animation-play-state: running;
+        }
+
+        .vinyl-label {
+            font-size: 0.55rem;
+            font-weight: 900;
+            letter-spacing: 0.08em;
+            color: var(--gold-bright);
+            background: #000000;
+            padding: 2px 5px;
+            border-radius: 99px;
+            border: 1px solid var(--gold);
+        }
+
+        .deck-meta {
+            min-width: 0;
+            flex: 1;
+        }
+
+        .deck-badges {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 6px;
+            margin-bottom: 6px;
+        }
+
+        .badge-tag {
+            font-size: 0.66rem;
+            font-weight: 800;
+            padding: 3px 8px;
+            border-radius: 6px;
+            text-transform: uppercase;
+            letter-spacing: 0.04em;
+        }
+
+        .badge-swalay {
+            background: rgba(212, 175, 55, 0.16);
+            border: 1px solid var(--border-gold);
+            color: var(--gold-bright);
+        }
+
+        .badge-partner {
+            background: var(--crimson-glow);
+            border: 1px solid rgba(220, 38, 38, 0.5);
+            color: #fca5a5;
+        }
+
+        .badge-neutral {
+            background: rgba(255, 255, 255, 0.06);
+            border: 1px solid var(--border-subtle);
+            color: var(--text-soft);
+            font-family: var(--font-mono);
+        }
+
+        .deck-title {
+            font-size: 1.4rem;
+            font-weight: 900;
+            color: #ffffff;
+            white-space: nowrap;
+            overflow: hidden;
+            text-overflow: ellipsis;
+        }
+
+        .deck-artist {
+            font-size: 0.82rem;
+            color: var(--gold-bright);
+            font-weight: 700;
+        }
+
+        .deck-controls {
+            display: flex;
+            flex-wrap: wrap;
+            align-items: center;
+            gap: 10px;
+        }
+
+        .transport-group {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+
+        .icon-btn {
+            width: 48px;
+            height: 48px;
+            border-radius: 12px;
+            background: #07070a;
+            border: 1px solid var(--border-subtle);
+            color: #ffffff;
+            font-weight: 800;
+            font-size: 0.95rem;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .icon-btn:hover {
+            border-color: var(--gold);
+            color: var(--gold-bright);
+        }
+
+        .volume-box {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            background: #07070a;
+            border: 1px solid var(--border-subtle);
+            border-radius: 12px;
+            padding: 0 12px;
+            height: 48px;
+        }
+
+        .volume-box input[type="range"] {
+            width: 82px;
+            accent-color: var(--gold);
+        }
+
+        .deck-body {
+            display: grid;
+            grid-template-columns: 1fr;
+            gap: 18px;
+        }
+
+        .visualizer-panel {
+            background: rgba(5, 5, 8, 0.94);
+            border: 1px solid var(--border-gold);
+            border-radius: var(--radius-lg);
+            padding: 16px;
+            display: flex;
+            flex-direction: column;
+            gap: 12px;
+        }
+
+        .status-row {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            gap: 8px;
+            font-family: var(--font-mono);
+            font-size: 0.72rem;
+            color: var(--gold-bright);
+        }
+
+        .status-indicator {
+            display: inline-flex;
+            align-items: center;
+            gap: 8px;
+            font-weight: 700;
+        }
+
+        .status-dot {
+            width: 9px;
+            height: 9px;
+            border-radius: 50%;
+            background: var(--gold);
+        }
+
+        .status-dot.live {
+            background: #22c55e;
+            box-shadow: 0 0 10px #22c55e;
+        }
+
+        .bars-wrap {
+            height: 92px;
+            background: #000000;
+            border: 1px solid rgba(255, 255, 255, 0.08);
+            border-radius: 12px;
+            padding: 10px 8px;
+            display: flex;
+            align-items: flex-end;
+            gap: 3px;
+        }
+
+        .viz-bar {
+            flex: 1;
+            border-radius: 99px;
+            background: linear-gradient(to top, var(--gold-deep), var(--gold), var(--gold-bright));
+            transition: height 0.07s ease;
+        }
+
+        .scrubber-wrap input[type="range"] {
+            width: 100%;
+            accent-color: var(--gold);
+            cursor: pointer;
+        }
+
+        /* Real YouTube Master Embed Container (16:9 Responsive) */
+        .yt-embed-shell {
+            width: 100%;
+            background: #000000;
+            border: 1px solid var(--border-gold);
+            border-radius: 14px;
+            overflow: hidden;
+            box-shadow: 0 12px 30px rgba(0, 0, 0, 0.85);
+        }
+
+        .yt-embed-ratio {
+            position: relative;
+            width: 100%;
+            padding-top: 56.25%;
+            background: #000000;
+        }
+
+        .yt-embed-ratio iframe {
+            position: absolute;
+            inset: 0;
+            width: 100%;
+            height: 100%;
+            border: 0;
+        }
+
+        /* Direct Official Master Stream Banner (Zero Error 153 Fallback for Mobile WebViews) */
+        .official-stream-banner {
+            background: linear-gradient(135deg, rgba(212, 175, 55, 0.16), rgba(220, 38, 38, 0.14), #07070b);
+            border: 1px solid var(--border-gold);
+            border-radius: 14px;
+            padding: 14px 16px;
+            display: flex;
+            flex-wrap: wrap;
+            align-items: center;
+            justify-content: space-between;
+            gap: 12px;
+        }
+
+        .official-stream-info {
+            display: flex;
+            flex-direction: column;
+            gap: 3px;
+            min-width: 0;
+            flex: 1 1 210px;
+        }
+
+        /* Synced Lyrics Preview Drawer inside Deck */
+        .lyrics-drawer {
+            background: #07070b;
+            border: 1px solid rgba(212, 175, 55, 0.32);
+            border-radius: 14px;
+            padding: 14px 16px;
+            display: flex;
+            flex-direction: column;
+            gap: 8px;
+        }
+
+        .lyrics-drawer-head {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            gap: 8px;
+        }
+
+        .lyrics-lines {
+            font-size: 0.84rem;
+            line-height: 1.65;
+            color: var(--text-soft);
+            white-space: pre-line;
+            max-height: 135px;
+            overflow-y: auto;
+            padding-right: 6px;
+        }
+
+        .master-file-bar {
+            display: flex;
+            flex-wrap: wrap;
+            align-items: center;
+            justify-content: space-between;
+            gap: 8px;
+            background: #07070b;
+            border: 1px dashed var(--border-gold);
+            border-radius: 12px;
+            padding: 10px 12px;
+        }
+
+        .master-file-label {
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            gap: 6px;
+            min-height: 40px;
+            padding: 8px 14px;
+            border-radius: 10px;
+            background: rgba(212, 175, 55, 0.16);
+            border: 1px solid var(--border-gold);
+            color: var(--gold-bright);
+            font-size: 0.75rem;
+            font-weight: 800;
+            cursor: pointer;
+        }
+
+        .master-file-label:hover {
+            background: rgba(212, 175, 55, 0.28);
+        }
+
+        .time-row {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            gap: 10px;
+            font-family: var(--font-mono);
+            font-size: 0.72rem;
+            color: var(--text-muted);
+            margin-top: 6px;
+        }
+
+        .time-row-center {
+            color: var(--gold);
+            text-align: center;
+            white-space: nowrap;
+            overflow: hidden;
+            text-overflow: ellipsis;
+        }
+
+        .stream-panel {
+            background: rgba(5, 5, 8, 0.94);
+            border: 1px solid var(--border-gold);
+            border-radius: var(--radius-lg);
+            padding: 16px;
+            display: flex;
+            flex-direction: column;
+            gap: 12px;
+        }
+
+        .stream-panel-title {
+            font-size: 0.72rem;
+            font-weight: 800;
+            text-transform: uppercase;
+            letter-spacing: 0.08em;
+            color: var(--gold-bright);
+        }
+
+        .stream-links-grid {
+            display: grid;
+            grid-template-columns: repeat(2, 1fr);
+            gap: 8px;
+        }
+
+        .stream-btn {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            min-height: 44px;
+            padding: 8px 10px;
+            border-radius: 10px;
+            font-size: 0.76rem;
+            font-weight: 800;
+            border: 1px solid var(--border-subtle);
+            background: var(--bg-elevated);
+            color: #ffffff;
+            text-align: center;
+            transition: transform 0.12s ease, border-color 0.15s ease;
+        }
+
+        .stream-btn:hover {
+            border-color: var(--gold);
+            color: var(--gold-bright);
+        }
+
+        .stream-btn.span-2 {
+            grid-column: span 2;
+        }
+
+        /* Distributor Filter Tabs */
+        .filter-bar {
+            display: flex;
+            gap: 10px;
+            overflow-x: auto;
+            padding-bottom: 8px;
+            margin-bottom: 24px;
+            justify-content: flex-start;
+        }
+
+        .filter-btn {
+            min-height: 48px;
+            padding: 10px 18px;
+            border-radius: 12px;
+            background: var(--bg-surface);
+            border: 1px solid var(--border-subtle);
+            color: var(--text-soft);
+            font-size: 0.78rem;
+            font-weight: 800;
+            text-transform: uppercase;
+            letter-spacing: 0.05em;
+            white-space: nowrap;
+            flex-shrink: 0;
+        }
+
+        .filter-btn.active {
+            background: linear-gradient(135deg, var(--gold-bright), var(--gold), var(--gold-deep));
+            color: #050505;
+            border-color: transparent;
+        }
+
+        /* 6-Song Cards Grid */
+        .tracks-grid {
+            display: grid;
+            grid-template-columns: 1fr;
+            gap: 20px;
+        }
+
+        .track-card {
+            background: var(--bg-surface);
+            backdrop-filter: blur(10px);
+            border: 2px solid var(--border-subtle);
+            border-radius: var(--radius-xl);
+            overflow: hidden;
+            display: flex;
+            flex-direction: column;
+        }
+
+        .track-card.active-track {
+            border-color: var(--gold);
+            box-shadow: 0 14px 40px rgba(212, 175, 55, 0.2);
+        }
+
+        .track-cover {
+            position: relative;
+            padding: 22px 18px;
+            background: radial-gradient(circle at top right, rgba(212, 175, 55, 0.25), #050507 72%);
+            border-bottom: 1px solid var(--border-subtle);
+            display: flex;
+            flex-direction: column;
+            justify-content: space-between;
+            min-height: 165px;
+        }
+
+        .track-cover-top {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            gap: 8px;
+        }
+
+        .track-cover-title {
+            margin-top: 24px;
+            font-size: 1.38rem;
+            font-weight: 900;
+            color: #ffffff;
+            line-height: 1.15;
+        }
+
+        .track-cover-sub {
+            font-size: 0.74rem;
+            font-family: var(--font-mono);
+            color: var(--gold-bright);
+            margin-top: 4px;
+        }
+
+        .track-body {
+            padding: 18px;
+            display: flex;
+            flex-direction: column;
+            gap: 14px;
+            flex: 1;
+            justify-content: space-between;
+        }
+
+        .track-credits {
+            display: flex;
+            flex-direction: column;
+            gap: 6px;
+        }
+
+        .track-manager {
+            font-size: 0.8rem;
+            font-weight: 800;
+            color: var(--gold-bright);
+        }
+
+        .track-actions {
+            display: flex;
+            flex-direction: column;
+            gap: 10px;
+        }
+
+        .mini-platforms {
+            display: grid;
+            grid-template-columns: repeat(4, 1fr);
+            gap: 6px;
+            padding-top: 8px;
+            border-top: 1px solid var(--border-subtle);
+        }
+
+        .mini-platform-link {
+            min-height: 40px;
+            border-radius: 9px;
+            background: #07070a;
+            border: 1px solid var(--border-subtle);
+            font-size: 0.68rem;
+            font-weight: 700;
+            color: var(--text-soft);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            text-align: center;
+            padding: 4px;
+        }
+
+        .mini-platform-link:hover {
+            border-color: var(--gold);
+            color: var(--gold-bright);
+        }
+
+        /* ==================== 7. RELEASE & MANAGE PORTAL ==================== */
+        .portal-grid {
+            display: grid;
+            grid-template-columns: 1fr;
+            gap: 24px;
+        }
+
+        .pillars-list {
+            display: flex;
+            flex-direction: column;
+            gap: 14px;
+        }
+
+        .pillar-card {
+            background: var(--bg-surface);
+            border: 1px solid var(--border-gold);
+            border-radius: var(--radius-lg);
+            padding: 20px;
+            display: flex;
+            flex-direction: column;
+            gap: 8px;
+        }
+
+        .pillar-card h3 {
+            font-size: 1.08rem;
+            font-weight: 800;
+            color: #ffffff;
+        }
+
+        .pillar-card p {
+            font-size: 0.88rem;
+            color: var(--text-muted);
+        }
+
+        .form-card {
+            background: var(--bg-surface);
+            border: 1px solid var(--border-gold);
+            border-radius: var(--radius-xl);
+            padding: 22px;
+            display: flex;
+            flex-direction: column;
+            gap: 14px;
+        }
+
+        .form-row {
+            display: grid;
+            grid-template-columns: 1fr;
+            gap: 14px;
+        }
+
+        .field {
+            display: flex;
+            flex-direction: column;
+            gap: 6px;
+        }
+
+        .field label {
+            font-size: 0.78rem;
+            font-weight: 700;
+            color: var(--text-soft);
+        }
+
+        .field input, .field select, .field textarea {
+            width: 100%;
+            min-height: 48px;
+            padding: 11px 14px;
+            border-radius: 12px;
+            background: #07070a;
+            border: 1px solid var(--border-subtle);
+            color: #ffffff;
+            font-size: 0.92rem;
+        }
+
+        .field input:focus, .field select:focus, .field textarea:focus {
+            border-color: var(--gold);
+            outline: none;
+        }
+
+        /* ==================== 8. ABOUT & FOOTER ==================== */
+        .about-box {
+            max-width: 860px;
+            margin: 0 auto;
+            text-align: center;
+            display: flex;
+            flex-direction: column;
+            gap: 18px;
+            align-items: center;
+        }
+
+        .about-actions {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 12px;
+            justify-content: center;
+        }
+
+        .footer {
+            background: rgba(0, 0, 0, 0.95);
+            border-top: 1px solid var(--border-gold);
+            padding: 40px 0;
+        }
+
+        .footer-top {
+            display: flex;
+            flex-direction: column;
+            gap: 20px;
+            padding-bottom: 24px;
+            border-bottom: 1px solid var(--border-subtle);
+        }
+
+        .footer-links {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 10px;
+        }
+
+        .footer-bottom {
+            padding-top: 20px;
+            display: flex;
+            flex-direction: column;
+            gap: 8px;
+            font-size: 0.8rem;
+            color: var(--text-muted);
+        }
+
+        /* ==================== 9. MODALS & TOAST ==================== */
+        .modal-backdrop {
+            position: fixed;
+            inset: 0;
+            z-index: 200;
+            background: rgba(0, 0, 0, 0.86);
+            backdrop-filter: blur(8px);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            padding: 16px;
+        }
+
+        .modal-panel {
+            width: 100%;
+            max-width: 540px;
+            max-height: 90vh;
+            overflow-y: auto;
+            background: #101016;
+            border: 2px solid var(--border-gold);
+            border-radius: var(--radius-xl);
+            padding: 22px;
+            display: flex;
+            flex-direction: column;
+            gap: 16px;
+        }
+
+        .modal-header {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            gap: 12px;
+        }
+
+        .toast {
+            position: fixed;
+            bottom: 20px;
+            right: 20px;
+            left: 20px;
+            max-width: 460px;
+            margin-left: auto;
+            z-index: 300;
+            background: #16161f;
+            border: 1px solid var(--gold);
+            color: #ffffff;
+            padding: 14px 18px;
+            border-radius: 14px;
+            font-size: 0.86rem;
+            font-weight: 700;
+            box-shadow: 0 18px 40px rgba(0, 0, 0, 0.88);
+        }
+
+        /* ==================== 10. RESPONSIVE BREAKPOINTS (MOBILE, LAPTOP & 4K SMART TV) ==================== */
+        @media (min-width: 768px) {
+            .summary-grid {
+                grid-template-columns: repeat(3, 1fr);
+            }
+
+            .tracks-grid {
+                grid-template-columns: repeat(2, 1fr);
+            }
+
+            .form-row {
+                grid-template-columns: repeat(2, 1fr);
+            }
+
+            .filter-bar {
+                justify-content: center;
+            }
+
+            .footer-top {
+                flex-direction: row;
+                align-items: center;
+                justify-content: space-between;
+            }
+
+            .footer-bottom {
+                flex-direction: row;
+                justify-content: space-between;
+            }
+        }
+
+        @media (min-width: 1024px) {
+            .nav-links {
+                display: flex;
+            }
+
+            .mobile-toggle {
+                display: none;
+            }
+
+            .hero-grid {
+                grid-template-columns: 1.08fr 0.92fr;
+                gap: 44px;
+            }
+
+            .deck-top {
+                flex-direction: row;
+                align-items: center;
+                justify-content: space-between;
+            }
+
+            .deck-body {
+                grid-template-columns: 1.55fr 1fr;
+                align-items: center;
+            }
+
+            .tracks-grid {
+                grid-template-columns: repeat(3, 1fr);
+            }
+
+            .portal-grid {
+                grid-template-columns: 1fr 1.25fr;
+                align-items: start;
+            }
+        }
+
+        /* Smart TV / 4K Widescreen 10-Foot UI */
+        @media (min-width: 1920px) {
+            html {
+                font-size: 20px;
+            }
+
+            .container {
+                max-width: 1700px;
+            }
+
+            .btn-gold, .btn-dark, .icon-btn, .filter-btn {
+                min-height: 60px;
+            }
+        }
+    </style>
+</head>
+<body>
+
+    <!-- ==================== 3D INTERACTIVE BACKGROUND STAGE ==================== -->
+    <canvas id="bg-3d-canvas" aria-hidden="true"></canvas>
+
+    <div class="site-layer">
+        <!-- ==================== 1. STICKY NAVIGATION BAR ==================== -->
+        <header class="navbar">
+            <div class="container nav-inner">
+                <a href="#home" class="brand-link" aria-label="ISHPREET RECORDS Home">
+                    <div class="brand-logo-box">
+                        <svg viewBox="0 0 220 180" width="38" height="32" xmlns="http://www.w3.org/2000/svg" role="img" aria-label="IR Crown Logo">
+                            <defs>
+                                <linearGradient id="navGold" x1="0%" y1="0%" x2="100%" y2="100%">
+                                    <stop offset="0%" stop-color="#f7dc81"/>
+                                    <stop offset="50%" stop-color="#d4af37"/>
+                                    <stop offset="100%" stop-color="#967225"/>
+                                </linearGradient>
+                            </defs>
+                            <path d="M 73,46 L 66,27 L 82,36 L 94,16 L 106,36 L 122,27 L 115,46 Z" fill="url(#navGold)"/>
+                            <circle cx="65" cy="24" r="3.2" fill="#f7dc81"/>
+                            <circle cx="94" cy="13" r="4" fill="#f7dc81"/>
+                            <circle cx="123" cy="24" r="3.2" fill="#f7dc81"/>
+                            <path d="M 71,52 L 117,52 L 117,55 C 107,56 105,59 105,67 L 105,134 C 105,142 107,145 117,146 L 117,149 L 71,149 L 71,146 C 81,145 83,142 83,134 L 83,67 C 83,59 81,56 71,55 Z" fill="url(#navGold)"/>
+                            <path d="M 102,55 L 136,55 C 163,55 177,67 177,86 C 177,103 164,114 143,116 L 173,141 C 180,146 186,148 194,149 L 194,150 L 166,150 C 158,150 153,147 146,140 L 119,115 L 105,115 L 105,110 L 131,110 C 149,110 158,101 158,86 C 158,70 148,60 130,60 L 102,60 Z" fill="url(#navGold)"/>
+                            <path d="M 44,154 C 76,108 134,84 198,64 C 138,91 84,117 44,154 Z" fill="#000000" stroke="#000000" stroke-width="5"/>
+                            <path d="M 44,154 C 76,108 134,84 198,64 C 138,91 84,117 44,154 Z" fill="url(#navGold)"/>
+                        </svg>
+                    </div>
+                    <div>
+                        <span class="brand-title gold-text">ISHPREET RECORDS</span>
+                        <span class="brand-domain">ISHPREETRECORDS.PUBLICVM.COM</span>
+                    </div>
+                </a>
+
+                <!-- Desktop Navigation -->
+                <nav class="nav-links" aria-label="Primary Navigation">
+                    <a href="#home">Home</a>
+                    <a href="#releases">Official Songs (6)</a>
+                    <a href="#release-manage">Release &amp; Manage</a>
+                    <a href="#about">About</a>
+                    <button type="button" class="btn-dark" onclick="openLogoKitModal()">Logo Kit</button>
+                    <button type="button" class="btn-gold" onclick="openBookingModal()">Release / Inquiry</button>
+                </nav>
+
+                <!-- Mobile Hamburger Button -->
+                <button type="button" id="mobile-menu-btn" class="mobile-toggle" aria-label="Open Navigation Menu" onclick="toggleMobileMenu()">
+                    &#9776;
+                </button>
+            </div>
+
+            <!-- Mobile Dropdown Drawer -->
+            <div id="mobile-menu" class="mobile-drawer hidden">
+                <a href="#home" onclick="toggleMobileMenu(false)">Home &amp; Streaming IDs</a>
+                <a href="#releases" onclick="toggleMobileMenu(false)">Official Songs (6)</a>
+                <a href="#release-manage" onclick="toggleMobileMenu(false)">Release &amp; Manage Songs</a>
+                <a href="#about" onclick="toggleMobileMenu(false)">About ISHPREET RECORDS</a>
+                <button type="button" class="drawer-item" onclick="toggleMobileMenu(false); openLogoKitModal();">Download Official Logo (SVG / PNG)</button>
+                <button type="button" class="btn-gold" onclick="toggleMobileMenu(false); openBookingModal();">Release Song / Artist Inquiry</button>
+            </div>
+        </header>
+
+        <!-- ==================== 2. 3D HERO SECTION & LOGO CREST CARD ==================== -->
+        <section id="home" class="hero">
+            <div class="container hero-grid">
+                <!-- Left Column: Brand Identity & CTAs -->
+                <div class="hero-copy">
+                    <div class="badge-row">
+                        <button type="button" class="pill-domain" onclick="copyDomain()" title="Click to copy official domain">
+                            OFFICIAL DOMAIN: ISHPREETRECORDS.PUBLICVM.COM &#128203;
+                        </button>
+                        <span class="pill-founder">FOUNDED BY ISHPREET THE GAMER (@ishpreetthegamer)</span>
+                    </div>
+
+                    <h1 class="hero-title">
+                        <span class="gold-text">ISHPREET RECORDS</span>
+                    </h1>
+
+                    <p class="hero-sub">
+                        Founded by Ishpreet The Gamer (@ishpreetthegamer) &bull; All Songs Managed by ISHPREET RECORDS
+                    </p>
+
+                    <p class="hero-desc">
+                        Welcome to the official 3D digital headquarters of <strong>ISHPREET RECORDS</strong>. Stream all 6 official releases by <strong>Ishpreet The Gamer</strong>—including <strong>Kings Don't Fold</strong> and the 3-track <strong>Shadows And Light (EP)</strong> distributed by <strong>Swalay Digital</strong>, plus <strong>Never Back Down</strong> and <strong>Sikka Challe</strong> via our global partner network—or submit your track to release and manage your music with us.
+                    </p>
+
+                    <div class="hero-actions">
+                        <button type="button" class="btn-gold" onclick="playSongById(0)">
+                            &#9654; Play Official Song — Kings Don't Fold
+                        </button>
+                        <a href="#releases" class="btn-dark">
+                            Explore All 6 Songs
+                        </a>
+                    </div>
+                </div>
+
+                <!-- Right Column: 3D Tilt Luxury Gold-on-Black Logo Card + 8 Streaming IDs -->
+                <aside class="logo-card tilt-3d" aria-label="Official Label Crest and Streaming Platform IDs">
+                    <div class="logo-card-top">
+                        <span class="tag-official">Official Label Crest</span>
+                        <button type="button" class="copy-id-btn" onclick="copyArtistId()">
+                            Copy ID: @ishpreetthegamer
+                        </button>
+                    </div>
+
+                    <!-- Exact Gold-on-Black Crowned IR Swoosh Logo -->
+                    <div class="logo-showcase-frame">
+                        <svg id="hero-official-logo" viewBox="0 0 600 420" width="100%" style="max-width: 340px;" xmlns="http://www.w3.org/2000/svg" role="img" aria-label="ISHPREET RECORDS Official Gold Crown IR Logo">
+                            <defs>
+                                <linearGradient id="goldMain" x1="0%" y1="0%" x2="100%" y2="100%">
+                                    <stop offset="0%" stop-color="#f7dc81"/>
+                                    <stop offset="35%" stop-color="#d4af37"/>
+                                    <stop offset="70%" stop-color="#f0cb65"/>
+                                    <stop offset="100%" stop-color="#967225"/>
+                                </linearGradient>
+                                <linearGradient id="goldBarL" x1="0%" y1="0%" x2="100%" y2="0%">
+                                    <stop offset="0%" stop-color="#967225" stop-opacity="0.3"/>
+                                    <stop offset="100%" stop-color="#f7dc81"/>
+                                </linearGradient>
+                                <linearGradient id="goldBarR" x1="0%" y1="0%" x2="100%" y2="0%">
+                                    <stop offset="0%" stop-color="#f7dc81"/>
+                                    <stop offset="100%" stop-color="#967225" stop-opacity="0.3"/>
+                                </linearGradient>
+                            </defs>
+                            <rect width="600" height="420" fill="#000000"/>
+                            <!-- 3-Point Royal Crown -->
+                            <path d="M 225,102 L 210,64 L 243,82 L 267,42 L 291,82 L 324,64 L 309,102 Z" fill="url(#goldMain)"/>
+                            <circle cx="208" cy="58" r="6" fill="#f7dc81"/>
+                            <circle cx="267" cy="35" r="7.5" fill="#f7dc81"/>
+                            <circle cx="326" cy="58" r="6" fill="#f7dc81"/>
+                            <!-- Serif Letter I -->
+                            <path d="M 221,114 L 313,114 L 313,119 C 294,121 290,127 290,143 L 290,266 C 290,282 294,288 313,290 L 313,295 L 221,295 L 221,290 C 240,288 244,282 244,266 L 244,143 C 244,127 240,121 221,119 Z" fill="url(#goldMain)"/>
+                            <!-- Interlocked Letter R -->
+                            <path d="M 284,120 L 348,120 C 398,120 424,142 424,177 C 424,209 400,229 360,233 L 417,280 C 430,290 441,293 456,294 L 456,296 L 404,296 C 389,296 379,290 366,278 L 316,231 L 290,231 L 290,222 L 339,222 C 372,222 389,205 389,177 C 389,147 370,129 337,129 L 284,129 Z" fill="url(#goldMain)"/>
+                            <!-- Diagonal Golden Swoosh -->
+                            <path d="M 172,304 C 232,218 342,174 464,136 C 350,186 248,235 172,304 Z" fill="#000000" stroke="#000000" stroke-width="10"/>
+                            <path d="M 172,304 C 232,218 342,174 464,136 C 350,186 248,235 172,304 Z" fill="url(#goldMain)"/>
+                            <!-- Wordmark -->
+                            <text x="300" y="352" text-anchor="middle" fill="url(#goldMain)" font-family="Arial, Helvetica, sans-serif" font-weight="800" font-size="38" letter-spacing="14">ISHPREET</text>
+                            <polygon points="96,381 182,379 182,383" fill="url(#goldBarL)"/>
+                            <text x="300" y="387" text-anchor="middle" fill="url(#goldMain)" font-family="Arial, Helvetica, sans-serif" font-weight="600" font-size="18" letter-spacing="13">RECORDS</text>
+                            <polygon points="418,379 504,381 418,383" fill="url(#goldBarR)"/>
+                        </svg>
+                    </div>
+
+                    <!-- All 8 Streaming Platform IDs -->
+                    <div class="streaming-box">
+                        <div class="streaming-box-header">
+                            <span>Official Streaming IDs</span>
+                            <span>Ishpreet The Gamer</span>
+                        </div>
+                        <div class="platform-grid">
+                            <a href="https://open.spotify.com/search/Ishpreet%20The%20Gamer" target="_blank" rel="noopener noreferrer" class="platform-pill">
+                                <span class="platform-dot" style="background: rgba(29,185,84,0.18); color: #1db954;">SP</span>
+                                <span class="platform-meta">
+                                    <span class="platform-name">Spotify</span>
+                                    <span class="platform-handle">@IshpreetTheGamer</span>
+                                </span>
+                            </a>
+                            <a href="https://www.youtube.com/@officialishpreetthegamer" target="_blank" rel="noopener noreferrer" class="platform-pill">
+                                <span class="platform-dot" style="background: rgba(239,68,68,0.18); color: #ef4444;">YT</span>
+                                <span class="platform-meta">
+                                    <span class="platform-name">YouTube</span>
+                                    <span class="platform-handle">@officialishpreetthegamer</span>
+                                </span>
+                            </a>
+                            <a href="https://music.youtube.com/search?q=Ishpreet+The+Gamer" target="_blank" rel="noopener noreferrer" class="platform-pill">
+                                <span class="platform-dot" style="background: rgba(244,63,94,0.18); color: #fb7185;">YM</span>
+                                <span class="platform-meta">
+                                    <span class="platform-name">YouTube Music</span>
+                                    <span class="platform-handle">Ishpreet The Gamer</span>
+                                </span>
+                            </a>
+                            <a href="https://music.apple.com/us/search?term=Ishpreet%20The%20Gamer" target="_blank" rel="noopener noreferrer" class="platform-pill">
+                                <span class="platform-dot" style="background: rgba(236,72,153,0.18); color: #f472b6;">AM</span>
+                                <span class="platform-meta">
+                                    <span class="platform-name">Apple Music</span>
+                                    <span class="platform-handle">Ishpreet The Gamer</span>
+                                </span>
+                            </a>
+                            <a href="https://www.instagram.com/" target="_blank" rel="noopener noreferrer" class="platform-pill">
+                                <span class="platform-dot" style="background: rgba(245,158,11,0.18); color: #fbbf24;">IG</span>
+                                <span class="platform-meta">
+                                    <span class="platform-name">Instagram</span>
+                                    <span class="platform-handle">@ishpreetrecords</span>
+                                </span>
+                            </a>
+                            <a href="https://www.jiosaavn.com/search/artist/Ishpreet%20The%20Gamer" target="_blank" rel="noopener noreferrer" class="platform-pill">
+                                <span class="platform-dot" style="background: rgba(20,184,166,0.18); color: #2dd4bf;">JS</span>
+                                <span class="platform-meta">
+                                    <span class="platform-name">JioSaavn</span>
+                                    <span class="platform-handle">Ishpreet The Gamer</span>
+                                </span>
+                            </a>
+                            <a href="https://music.amazon.com/search/Ishpreet+The+Gamer" target="_blank" rel="noopener noreferrer" class="platform-pill">
+                                <span class="platform-dot" style="background: rgba(14,165,233,0.18); color: #38bdf8;">AZ</span>
+                                <span class="platform-meta">
+                                    <span class="platform-name">Amazon Music</span>
+                                    <span class="platform-handle">Ishpreet The Gamer</span>
+                                </span>
+                            </a>
+                            <a href="https://gaana.com/artist/ishpreet-the-gamer" target="_blank" rel="noopener noreferrer" class="platform-pill">
+                                <span class="platform-dot" style="background: rgba(249,115,22,0.18); color: #fb923c;">GN</span>
+                                <span class="platform-meta">
+                                    <span class="platform-name">Gaana</span>
+                                    <span class="platform-handle">Ishpreet The Gamer</span>
+                                </span>
+                            </a>
+                        </div>
+                    </div>
+                </aside>
+            </div>
+        </section>
+
+        <!-- ==================== 3. COMPLETE 6-SONG DISCOGRAPHY & 3D VINYL PLAYER DECK ==================== -->
+        <section id="releases" class="section section-glass">
+            <div class="container">
+                <div class="section-header">
+                    <span class="section-eyebrow">Verified Official Catalog (6 Songs)</span>
+                    <h2 class="section-title">Official <span class="gold-text">Discography</span></h2>
+                    <p class="section-desc">
+                        All 6 Official Songs by <strong>Ishpreet The Gamer (@ishpreetthegamer)</strong> &bull; <strong>Managed by ISHPREET RECORDS</strong>. Tap <strong>Play Song</strong> on any track for instant studio playback with our spinning 3D vinyl deck and 32-bar visualizer, or stream the official master on YouTube, YouTube Music, Spotify, Apple Music, JioSaavn, Gaana, and Amazon Music.
+                    </p>
+                </div>
+
+                <!-- Distributor Summary Strip -->
+                <div class="summary-grid">
+                    <div class="summary-card">
+                        <div class="summary-icon">01</div>
+                        <div>
+                            <div style="font-size: 0.7rem; font-weight: 800; color: var(--gold-bright); text-transform: uppercase;">Swalay Digital &bull; Single</div>
+                            <div style="font-size: 0.92rem; font-weight: 800;">Kings Don't Fold (2:30)</div>
+                            <div style="font-size: 0.75rem; color: var(--text-muted);">Released Sep 30, 2025 &bull; Managed by ISHPREET RECORDS</div>
+                        </div>
+                    </div>
+                    <div class="summary-card">
+                        <div class="summary-icon">EP</div>
+                        <div>
+                            <div style="font-size: 0.7rem; font-weight: 800; color: var(--gold-bright); text-transform: uppercase;">Swalay Digital &bull; 3-Track EP</div>
+                            <div style="font-size: 0.92rem; font-weight: 800;">Shadows And Light (EP)</div>
+                            <div style="font-size: 0.75rem; color: var(--text-muted);">Closer To You &bull; Rain On My Window &bull; Steel And Smoke</div>
+                        </div>
+                    </div>
+                    <div class="summary-card crimson">
+                        <div class="summary-icon">02</div>
+                        <div>
+                            <div style="font-size: 0.7rem; font-weight: 800; color: #fca5a5; text-transform: uppercase;">Partner Distribution &bull; 2026</div>
+                            <div style="font-size: 0.92rem; font-weight: 800;">Never Back Down &amp; Sikka Challe</div>
+                            <div style="font-size: 0.75rem; color: var(--text-muted);">Managed by ISHPREET RECORDS</div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- 3D Now Playing Vinyl Deck -->
+                <div id="studio-deck" class="player-deck tilt-3d" aria-label="3D Now Playing Studio Deck">
+                    <div class="deck-top">
+                        <div class="deck-info">
+                            <div class="vinyl-stage">
+                                <div id="vinyl-disc" class="vinyl-disc" aria-hidden="true">
+                                    <span class="vinyl-label">IR</span>
+                                </div>
+                            </div>
+                            <div class="deck-meta">
+                                <div class="deck-badges">
+                                    <span id="deck-badge" class="badge-tag badge-partner">Single</span>
+                                    <span id="deck-distributor" class="badge-tag badge-swalay">Distributed by Swalay Digital</span>
+                                    <span id="deck-specs" class="badge-tag badge-neutral">Sep 30, 2025 &bull; 94 BPM &bull; F Minor</span>
+                                </div>
+                                <div id="deck-title" class="deck-title">Kings Don't Fold</div>
+                                <div id="deck-artist" class="deck-artist">Ishpreet The Gamer &bull; Managed by ISHPREET RECORDS</div>
+                            </div>
+                        </div>
+
+                        <div class="deck-controls">
+                            <div class="transport-group">
+                                <button type="button" class="icon-btn" onclick="prevTrack()" aria-label="Previous Song">&#9664;&#9664;</button>
+                                <button type="button" id="deck-play-btn" class="btn-gold" onclick="togglePlayPause()">
+                                    <span id="deck-play-icon">&#9654;</span>
+                                    <span id="deck-play-label">Play Song</span>
+                                </button>
+                                <button type="button" class="icon-btn" onclick="nextTrack()" aria-label="Next Song">&#9654;&#9654;</button>
+                            </div>
+
+                            <div class="volume-box">
+                                <button type="button" id="mute-btn" onclick="toggleMute()" aria-label="Mute or Unmute" style="font-weight: 800; color: var(--gold-bright); font-size: 0.78rem;">VOL</button>
+                                <input id="volume-slider" type="range" min="0" max="100" value="85" oninput="setVolume(this.value)" aria-label="Volume Level">
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="deck-body">
+                        <!-- Real HTML5 Master Audio Deck + Official YouTube Embed + Visualizer + Lyrics -->
+                        <div class="visualizer-panel">
+                            <div class="status-row">
+                                <span class="status-indicator">
+                                    <span id="status-dot" class="status-dot"></span>
+                                    <span id="status-text">OFFICIAL MASTER READY — TAP PLAY SONG</span>
+                                </span>
+                                <span id="track-counter">Track 1 of 6</span>
+                            </div>
+
+                            <p style="font-size: 0.72rem; color: var(--text-muted); line-height: 1.45;">
+                                If your mobile preview browser blocks embedded players (Error 153), tap the gold <strong>Play Official Track on YouTube</strong> button below to launch your official audio/video directly.
+                            </p>
+
+                            <!-- Official Embedded YouTube Master Player (strict-origin-when-cross-origin) -->
+                            <div id="yt-embed-shell" class="yt-embed-shell">
+                                <div id="yt-embed-ratio" class="yt-embed-ratio">
+                                    <iframe
+                                        id="yt-master-iframe"
+                                        src="https://www.youtube.com/embed/videoseries?list=OLAK5uy_k8VvyFVEQ9lfHIpUqJOmRL-luzzFq4108&rel=0"
+                                        title="ISHPREET RECORDS Official YouTube Master"
+                                        referrerpolicy="strict-origin-when-cross-origin"
+                                        allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share"
+                                        allowfullscreen>
+                                    </iframe>
+                                </div>
+                            </div>
+
+                            <!-- Direct Native Official Master Banner (Zero Error 153) -->
+                            <div class="official-stream-banner">
+                                <div class="official-stream-info">
+                                    <span style="font-size: 0.68rem; font-weight: 800; letter-spacing: 0.1em; text-transform: uppercase; color: var(--gold-bright);">
+                                        Direct Official YouTube Audio &amp; Video Launch
+                                    </span>
+                                    <span id="yt-mode-badge" style="font-size: 0.8rem; font-weight: 700; color: #ffffff;">
+                                        Kings Don't Fold &bull; Official YouTube Release
+                                    </span>
+                                </div>
+                                <a id="yt-direct-watch-btn" href="https://youtube.com/playlist?list=OLAK5uy_k8VvyFVEQ9lfHIpUqJOmRL-luzzFq4108&si=fDdyydfHxN_cJZqG" target="_blank" rel="noopener noreferrer" class="btn-gold" style="min-height: 44px; padding: 10px 18px; font-size: 0.82rem;">
+                                    &#9654; Play Official Track on YouTube
+                                </a>
+                            </div>
+
+                            <!-- Real HTML5 Master Audio Element (Used when local .MP3 files are loaded) -->
+                            <audio id="real-master-audio" preload="metadata"></audio>
+
+                            <!-- Real-Time 32-Bar Frequency Visualizer -->
+                            <div id="visualizer-bars" class="bars-wrap" aria-hidden="true"></div>
+
+                            <!-- Interactive Scrubber & Timestamp -->
+                            <div class="scrubber-wrap">
+                                <input id="progress-scrubber" type="range" min="0" max="150" value="0" oninput="seekTrack(this.value)" aria-label="Song Progress">
+                                <div class="time-row">
+                                    <span id="time-elapsed">0:00</span>
+                                    <span class="time-row-center">ISHPREET RECORDS Studio Master</span>
+                                    <span id="time-duration">2:30</span>
+                                </div>
+                            </div>
+
+                            <!-- Synced Official Lyrics Preview Toggle -->
+                            <div class="lyrics-drawer">
+                                <div class="lyrics-drawer-head">
+                                    <span style="font-size: 0.72rem; font-weight: 800; letter-spacing: 0.08em; text-transform: uppercase; color: var(--gold-bright);">
+                                        Official Lyrics Preview &mdash; <span id="lyrics-track-name">Kings Don't Fold</span>
+                                    </span>
+                                    <button type="button" id="toggle-lyrics-btn" class="copy-id-btn" style="min-height: 30px; padding: 4px 10px;" onclick="toggleLyricsDrawer()">
+                                        Hide Lyrics
+                                    </button>
+                                </div>
+                                <div id="lyrics-content" class="lyrics-lines"></div>
+                            </div>
+
+                            <!-- Multi-File Local .MP3 Auto-Matcher Slot -->
+                            <div class="master-file-bar">
+                                <span id="master-file-status" style="font-size: 0.74rem; color: var(--text-soft);">
+                                    All 6 official masters play right here. Want to swap in your own <strong>.MP3</strong> files?
+                                </span>
+                                <label class="master-file-label" for="local-audio-input">
+                                    &#128191; Load Local .MP3 Files (Multi-Select)
+                                </label>
+                                <input id="local-audio-input" type="file" accept="audio/*" multiple class="hidden" onchange="handleLocalAudioUpload(event)">
+                            </div>
+                        </div>
+
+                        <!-- Official Streaming Action Strip -->
+                        <div class="stream-panel">
+                            <div class="stream-panel-title" id="stream-panel-heading">Official Master Links — "Kings Don't Fold":</div>
+                            <div class="stream-links-grid">
+                                <a id="deck-link-youtube" href="https://youtube.com/playlist?list=OLAK5uy_k8VvyFVEQ9lfHIpUqJOmRL-luzzFq4108&si=fDdyydfHxN_cJZqG" target="_blank" rel="noopener noreferrer" class="stream-btn">YouTube Official</a>
+                                <a id="deck-link-ytmusic" href="https://music.youtube.com/search?q=Ishpreet+The+Gamer+Kings+Dont+Fold" target="_blank" rel="noopener noreferrer" class="stream-btn">YouTube Music</a>
+                                <a id="deck-link-spotify" href="https://open.spotify.com/search/Ishpreet%20The%20Gamer%20Kings%20Dont%20Fold" target="_blank" rel="noopener noreferrer" class="stream-btn">Spotify</a>
+                                <a id="deck-link-apple" href="https://music.apple.com/us/search?term=Ishpreet%20The%20Gamer%20Kings%20Dont+Fold" target="_blank" rel="noopener noreferrer" class="stream-btn">Apple Music</a>
+                                <a id="deck-link-jiosaavn" href="https://www.jiosaavn.com/search/song/Ishpreet%20The%20Gamer%20Kings%20Dont%20Fold" target="_blank" rel="noopener noreferrer" class="stream-btn">JioSaavn</a>
+                                <a id="deck-link-gaana" href="https://gaana.com/artist/ishpreet-the-gamer" target="_blank" rel="noopener noreferrer" class="stream-btn">Gaana</a>
+                                <a id="deck-link-amazon" href="https://music.amazon.com/search/Ishpreet+The+Gamer+Kings+Dont+Fold" target="_blank" rel="noopener noreferrer" class="stream-btn span-2">Listen on Amazon Music</a>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Distributor Filter Tabs -->
+                <div class="filter-bar" role="tablist" aria-label="Filter songs by distributor">
+                    <button type="button" id="filter-all" class="filter-btn active" onclick="setDistributorFilter('all')">All Official Releases (6)</button>
+                    <button type="button" id="filter-swalay" class="filter-btn" onclick="setDistributorFilter('swalay')">Swalay Digital (4)</button>
+                    <button type="button" id="filter-partner" class="filter-btn" onclick="setDistributorFilter('partner')">Partner Distribution Network (2)</button>
+                </div>
+
+                <!-- 6-Track Cards Grid -->
+                <div id="tracks-grid" class="tracks-grid"></div>
+            </div>
+        </section>
+
+        <!-- ==================== 4. RELEASE & MANAGE YOUR SONGS PORTAL ==================== -->
+        <section id="release-manage" class="section">
+            <div class="container">
+                <div class="section-header">
+                    <span class="section-eyebrow">For Independent Artists &amp; Creators</span>
+                    <h2 class="section-title">Release &amp; Manage Your Songs With <span class="gold-text">ISHPREET RECORDS</span></h2>
+                    <p class="section-desc">
+                        Release your singles and EPs worldwide through <strong>Swalay Digital Distribution</strong> and our global distribution partners, or sign on for full artist management under <strong>ISHPREET RECORDS</strong>.
+                    </p>
+                </div>
+
+                <div class="portal-grid">
+                    <div class="pillars-list">
+                        <div class="pillar-card tilt-3d">
+                            <h3>1. Global Song Release &amp; Distribution</h3>
+                            <p>Deliver your original music to Spotify, Apple Music, YouTube Music, JioSaavn, Amazon Music, and Gaana with 100% copyright safety.</p>
+                        </div>
+                        <div class="pillar-card tilt-3d">
+                            <h3>2. Full Artist &amp; Catalog Management</h3>
+                            <p>Official ISRC/UPC metadata management, release scheduling, and profile verification managed by <strong>ISHPREET RECORDS</strong>.</p>
+                        </div>
+                        <div class="pillar-card tilt-3d">
+                            <h3>3. Multi-Distributor Flexibility</h3>
+                            <p>Choose <strong>Swalay Digital Distribution</strong> or our global partner network tailored to your single or EP release plan.</p>
+                        </div>
+                    </div>
+
+                    <form class="form-card" onsubmit="handleSubmission(event)">
+                        <h3 style="font-size: 1.2rem; font-weight: 900; color: var(--gold-bright);">Submit Song for Release or Management</h3>
+                        <div class="form-row">
+                            <div class="field">
+                                <label for="artist-name">Artist / Stage Name *</label>
+                                <input id="artist-name" type="text" required placeholder="e.g. Your Artist Name">
+                            </div>
+                            <div class="field">
+                                <label for="artist-contact">Email or Instagram Handle *</label>
+                                <input id="artist-contact" type="text" required placeholder="e.g. @yourhandle or email@domain.com">
+                            </div>
+                        </div>
+                        <div class="form-row">
+                            <div class="field">
+                                <label for="service-type">Service Needed *</label>
+                                <select id="service-type">
+                                    <option value="Release Song (Swalay Digital)">Release Song (Swalay Digital)</option>
+                                    <option value="Release Song (Partner Distributor)">Release Song (Partner Distributor)</option>
+                                    <option value="Full Artist Management">Full Artist Management</option>
+                                </select>
+                            </div>
+                            <div class="field">
+                                <label for="track-title-input">Song / EP Title *</label>
+                                <input id="track-title-input" type="text" required placeholder="e.g. My New Single">
+                            </div>
+                        </div>
+                        <div class="field">
+                            <label for="demo-link">Demo Link (Google Drive / SoundCloud / YouTube Unlisted) *</label>
+                            <input id="demo-link" type="url" required placeholder="https://...">
+                        </div>
+                        <button type="submit" class="btn-gold">Submit to ISHPREET RECORDS</button>
+                    </form>
+                </div>
+            </div>
+        </section>
+
+        <!-- ==================== 5. ABOUT SECTION ==================== -->
+        <section id="about" class="section section-glass">
+            <div class="container about-box">
+                <span class="section-eyebrow">Official Record Label</span>
+                <h2 class="section-title">About <span class="gold-text">ISHPREET RECORDS</span></h2>
+                <p class="section-desc">
+                    <strong>ISHPREET RECORDS</strong> (<code>ISHPREETRECORDS.PUBLICVM.COM</code>) is an independent record label and artist management company <strong>founded by Ishpreet The Gamer (@ishpreetthegamer)</strong> with <strong>all songs managed by ISHPREET RECORDS</strong>. Working alongside <strong>Swalay Digital Distribution</strong> and international partner distributors, the label releases and manages 100% original music across every major streaming platform.
+                </p>
+                <div class="about-actions">
+                    <button type="button" class="btn-gold" onclick="openBookingModal()">Contact ISHPREET RECORDS</button>
+                    <button type="button" class="btn-dark" onclick="openLogoKitModal()">Official Logo Kit (SVG / PNG)</button>
+                </div>
+            </div>
+        </section>
+
+        <!-- ==================== 6. FOOTER ==================== -->
+        <footer class="footer">
+            <div class="container">
+                <div class="footer-top">
+                    <div>
+                        <div class="brand-title gold-text" style="font-size: 1.2rem;">ISHPREET RECORDS</div>
+                        <div class="brand-domain">ISHPREETRECORDS.PUBLICVM.COM</div>
+                    </div>
+                    <div class="footer-links">
+                        <button type="button" class="btn-dark" onclick="openLogoKitModal()">Download Logo (SVG / PNG)</button>
+                        <a href="https://open.spotify.com/search/Ishpreet%20The%20Gamer" target="_blank" rel="noopener noreferrer" class="btn-dark">Spotify</a>
+                        <a href="https://www.youtube.com/@officialishpreetthegamer" target="_blank" rel="noopener noreferrer" class="btn-dark">YouTube</a>
+                        <a href="https://music.apple.com/us/search?term=Ishpreet%20The%20Gamer" target="_blank" rel="noopener noreferrer" class="btn-dark">Apple Music</a>
+                    </div>
+                </div>
+                <div class="footer-bottom">
+                    <span>&copy; 2026 ISHPREET RECORDS &bull; Founded by Ishpreet The Gamer (@ishpreetthegamer) &bull; All Songs Managed by ISHPREET RECORDS.</span>
+                    <span>Swalay Digital &amp; Global Distribution Partners</span>
+                </div>
+            </div>
+        </footer>
+    </div>
+
+    <!-- ==================== 7. MODALS (HIDDEN BY DEFAULT) ==================== -->
+    <div id="booking-modal" class="modal-backdrop hidden" role="dialog" aria-modal="true" aria-labelledby="booking-modal-title">
+        <div class="modal-panel">
+            <div class="modal-header">
+                <h3 id="booking-modal-title" class="gold-text" style="font-size: 1.25rem; font-weight: 900;">ISHPREET RECORDS — Direct Inquiry</h3>
+                <button type="button" class="icon-btn" onclick="closeBookingModal()" aria-label="Close Modal">&#10005;</button>
+            </div>
+            <p style="font-size: 0.85rem; color: var(--text-muted);">
+                Send a direct release, management, or collaboration inquiry to <strong>Ishpreet The Gamer (@ishpreetthegamer)</strong>.
+            </p>
+            <form class="form-card" style="padding: 0; border: none; background: transparent;" onsubmit="handleInquirySubmit(event)">
+                <div class="field">
+                    <label for="inq-name">Your Name / Artist Name *</label>
+                    <input id="inq-name" type="text" required placeholder="Enter your name">
+                </div>
+                <div class="field">
+                    <label for="inq-email">Email or Contact Handle *</label>
+                    <input id="inq-email" type="text" required placeholder="you@example.com or @handle">
+                </div>
+                <div class="field">
+                    <label for="inq-message">Message / Release Details *</label>
+                    <textarea id="inq-message" rows="3" required placeholder="Tell us about your song release or management request..."></textarea>
+                </div>
+                <button type="submit" class="btn-gold">Send Direct Inquiry</button>
+            </form>
+        </div>
+    </div>
+
+    <!-- Official Logo Kit Modal -->
+    <div id="logokit-modal" class="modal-backdrop hidden" role="dialog" aria-modal="true" aria-labelledby="logokit-modal-title">
+        <div class="modal-panel">
+            <div class="modal-header">
+                <h3 id="logokit-modal-title" class="gold-text" style="font-size: 1.25rem; font-weight: 900;">Official Brand Logo Kit</h3>
+                <button type="button" class="icon-btn" onclick="closeLogoKitModal()" aria-label="Close Logo Kit">&#10005;</button>
+            </div>
+            <p style="font-size: 0.85rem; color: var(--text-muted);">
+                Download the official gold-on-black <strong>ISHPREET RECORDS</strong> emblem as a vector SVG or high-resolution 1500&times;1100 PNG.
+            </p>
+            <div style="display: flex; flex-wrap: wrap; gap: 12px;">
+                <button type="button" class="btn-gold" style="flex: 1;" onclick="downloadOfficialSVG()">Download Vector SVG</button>
+                <button type="button" class="btn-dark" style="flex: 1;" onclick="downloadOfficialPNG()">Download HD PNG (1500&times;1100)</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Toast Notification -->
+    <div id="toast" class="toast hidden" role="status" aria-live="polite"></div>
+
+    <!-- ==================== 8. VANILLA JS — 3D STAGE, TILT ENGINE, 6-SONG CATALOG & STUDIO AUDIO ==================== -->
+    <script>
+        /**
+         * Complete 6-Song Official Discography — Ishpreet The Gamer
+         * Managed by ISHPREET RECORDS (ISHPREETRECORDS.PUBLICVM.COM)
+         * Mapped 1-to-1 with the user's exact official YouTube URLs & embeds.
+         */
+        const tracks = [
+            {
+                id: 0,
+                title: "Kings Don't Fold",
+                matchKeyword: "kings",
+                artist: "Ishpreet The Gamer",
+                manager: "Managed by ISHPREET RECORDS",
+                distributorCategory: "swalay",
+                distributorLabel: "Distributed by Swalay Digital",
+                releaseDate: "Sep 30, 2025",
+                durationSec: 150,
+                durationText: "2:30",
+                bpm: 94,
+                musicalKey: "F Minor",
+                badge: "Single",
+                youtubeUrl: "https://youtube.com/playlist?list=OLAK5uy_k8VvyFVEQ9lfHIpUqJOmRL-luzzFq4108&si=fDdyydfHxN_cJZqG",
+                youtubeEmbedBase: "https://www.youtube.com/embed/videoseries?list=OLAK5uy_k8VvyFVEQ9lfHIpUqJOmRL-luzzFq4108",
+                localAudioUrl: "/audio/kings-dont-fold.mp3",
+                localFileName: "kings-dont-fold.mp3",
+                lyrics: "Real ones move in silence, but the whole block know my name...\nWe don't bend, we don't break, we don't talk when the law wanna take.\nAll gas, no brakes in the zone — welcome to the jungle, Kings Don't Fold.\nInk on my skin, scars from war, came for respect, not awards."
+            },
+            {
+                id: 1,
+                title: "Sikka Challe",
+                matchKeyword: "sikka",
+                artist: "Ishpreet The Gamer",
+                manager: "Managed by ISHPREET RECORDS",
+                distributorCategory: "partner",
+                distributorLabel: "Partner Distribution Network",
+                releaseDate: "2026",
+                durationSec: 167,
+                durationText: "2:47",
+                bpm: 100,
+                musicalKey: "G Minor",
+                badge: "Single",
+                youtubeUrl: "https://youtube.com/playlist?list=OLAK5uy_nd9RwZAZ-RCIKgFpUiAFdmr4Mz7pfASyI&si=NcqNCCcNhaIu4RND",
+                youtubeEmbedBase: "https://www.youtube.com/embed/videoseries?list=OLAK5uy_nd9RwZAZ-RCIKgFpUiAFdmr4Mz7pfASyI",
+                localAudioUrl: "/audio/sikka-challe.mp3",
+                localFileName: "sikka-challe.mp3",
+                lyrics: "Mehnta naal banaya ae mukaam mera,\nLoki chaunde ne hun mitauna naa mera.\nAssi top te baithe aa kalle billo,\nEh mahal saadi apni kamai da ae sohneya, saadda sikka challe jag te asoola wali gall ae."
+            },
+            {
+                id: 2,
+                title: "Never Back Down",
+                matchKeyword: "never",
+                artist: "Ishpreet The Gamer",
+                manager: "Managed by ISHPREET RECORDS",
+                distributorCategory: "partner",
+                distributorLabel: "Partner Distribution Network",
+                releaseDate: "Jan 30, 2026",
+                durationSec: 98,
+                durationText: "1:38",
+                bpm: 120,
+                musicalKey: "E Minor",
+                badge: "Single",
+                youtubeUrl: "https://youtube.com/playlist?list=OLAK5uy_knxTXJmBEOCN6aQ216Gk2yJ5WDCXXnyWA&si=fDWTYuaDidJQfIYh",
+                youtubeEmbedBase: "https://www.youtube.com/embed/videoseries?list=OLAK5uy_knxTXJmBEOCN6aQ216Gk2yJ5WDCXXnyWA",
+                localAudioUrl: "/audio/never-back-down.mp3",
+                localFileName: "never-back-down.mp3",
+                lyrics: "Riding through the city, eyes cold, heart heavy,\nNever back down, nah never — keep my head on a swivel.\nHustle all night, never slip, never slow,\nGrew up with the hunger, can't let it show."
+            },
+            {
+                id: 3,
+                title: "Steel And Smoke",
+                matchKeyword: "steel",
+                artist: "Ishpreet The Gamer",
+                manager: "Managed by ISHPREET RECORDS",
+                distributorCategory: "swalay",
+                distributorLabel: "Distributed by Swalay Digital",
+                releaseDate: "Oct 30, 2025",
+                durationSec: 95,
+                durationText: "1:35",
+                bpm: 112,
+                musicalKey: "C Minor",
+                badge: "Shadows And Light (EP)",
+                youtubeUrl: "https://youtu.be/BMVo9AV78Tg?si=yWGn1YQ_oKohQDRN",
+                youtubeEmbedBase: "https://www.youtube.com/embed/BMVo9AV78Tg",
+                localAudioUrl: "/audio/steel-and-smoke.mp3",
+                localFileName: "steel-and-smoke.mp3",
+                lyrics: "Steel and smoke, that's the life I chose,\nFast cars, black clothes, everybody knows.\nHands on the chrome, silence in the night,\nPlay with my zone, you won't see daylight."
+            },
+            {
+                id: 4,
+                title: "Closer To You",
+                matchKeyword: "closer",
+                artist: "Ishpreet The Gamer",
+                manager: "Managed by ISHPREET RECORDS",
+                distributorCategory: "swalay",
+                distributorLabel: "Distributed by Swalay Digital",
+                releaseDate: "Oct 30, 2025",
+                durationSec: 95,
+                durationText: "1:35",
+                bpm: 102,
+                musicalKey: "A Minor",
+                badge: "Shadows And Light (EP)",
+                youtubeUrl: "https://youtu.be/6hlMvGumxuE?si=zFoIb9pGnSbos3cB",
+                youtubeEmbedBase: "https://www.youtube.com/embed/6hlMvGumxuE",
+                localAudioUrl: "/audio/closer-to-you.mp3",
+                localFileName: "closer-to-you.mp3",
+                lyrics: "Every step I take gets closer to you,\nEvery word I say, it's honest and true.\nThe world could break, the sky turn blue,\nStill my heart beats closer to you."
+            },
+            {
+                id: 5,
+                title: "Rain On My Window",
+                matchKeyword: "rain",
+                artist: "Ishpreet The Gamer",
+                manager: "Managed by ISHPREET RECORDS",
+                distributorCategory: "swalay",
+                distributorLabel: "Distributed by Swalay Digital",
+                releaseDate: "Oct 30, 2025",
+                durationSec: 95,
+                durationText: "1:35",
+                bpm: 86,
+                musicalKey: "D Minor",
+                badge: "Shadows And Light (EP)",
+                youtubeUrl: "https://youtu.be/j5DLphEYhUM?si=BGJILV3VXhracz4p",
+                youtubeEmbedBase: "https://www.youtube.com/embed/j5DLphEYhUM",
+                localAudioUrl: "/audio/rain-on-my-window.mp3",
+                localFileName: "rain-on-my-window.mp3",
+                lyrics: "Rain on my window, pain in my chest,\nTried to move on, but I can't find rest.\nEvery broken piece I carry inside,\nYou were my truth, now I'm lost in the lies."
+            }
+        ];
+
+        let currentTrackIndex = 0;
+        let activeFilter = "all";
+        let isPlaying = false;
+        let elapsedSec = 0;
+        let volumeLevel = 0.85;
+        let isMuted = false;
+        let lyricsExpanded = true;
+
+        let analyserCtx = null;
+        let analyserNode = null;
+        let analyserData = null;
+        let sourceConnected = false;
+        let clockTimer = null;
+        let vizRaf = null;
+        const BAR_TOTAL = 32;
+
+        // Warm harmonic studio chord progressions & sub-bass roots per track (zero harsh square beeps)
+        const trackArrangements = [
+            { roots: [87.31, 69.30, 77.78, 65.41], chords: [[174.61, 207.65, 261.63], [138.59, 174.61, 207.65], [155.56, 196.00, 233.08], [130.81, 155.56, 196.00]] }, // Kings Don't Fold (Fm)
+            { roots: [110.00, 87.31, 65.41, 98.00], chords: [[220.00, 261.63, 329.63], [174.61, 220.00, 261.63], [130.81, 164.81, 196.00], [196.00, 246.94, 293.66]] }, // Closer To You (Am)
+            { roots: [73.42, 58.27, 65.41, 82.41], chords: [[146.83, 174.61, 220.00], [116.54, 146.83, 174.61], [130.81, 155.56, 196.00], [164.81, 207.65, 246.94]] }, // Rain On My Window (Dm)
+            { roots: [65.41, 51.91, 58.27, 49.00], chords: [[130.81, 155.56, 196.00], [103.83, 130.81, 155.56], [116.54, 146.83, 174.61], [98.00, 123.47, 146.83]] }, // Steel And Smoke (Cm)
+            { roots: [82.41, 65.41, 73.42, 61.74], chords: [[164.81, 196.00, 246.94], [130.81, 164.81, 196.00], [146.83, 185.00, 220.00], [123.47, 146.83, 185.00]] }, // Never Back Down (Em)
+            { roots: [98.00, 77.78, 87.31, 73.42], chords: [[196.00, 233.08, 293.66], [155.56, 196.00, 233.08], [174.61, 207.65, 261.63], [146.83, 174.61, 220.00]] }  // Sikka Challe (Gm)
+        ];
+
+        /* ==================== 3D BACKGROUND CANVAS STAGE ==================== */
+        function init3DStage() {
+            const canvas = document.getElementById("bg-3d-canvas");
+            if (!canvas) return;
+            const ctx = canvas.getContext("2d");
+
+            let width = 0;
+            let height = 0;
+            let pointerX = 0;
+            let pointerY = 0;
+
+            function resize() {
+                width = canvas.width = window.innerWidth;
+                height = canvas.height = window.innerHeight;
+            }
+            window.addEventListener("resize", resize);
+            resize();
+
+            window.addEventListener("mousemove", (e) => {
+                pointerX = (e.clientX / width - 0.5) * 2;
+                pointerY = (e.clientY / height - 0.5) * 2;
+            }, { passive: true });
+
+            // 3D Floating Metallic Particles
+            const particles = Array.from({ length: 70 }, () => ({
+                x: (Math.random() - 0.5) * 1400,
+                y: (Math.random() - 0.5) * 900,
+                z: Math.random() * 1000 + 100,
+                size: Math.random() * 2.5 + 1,
+                isCrimson: Math.random() > 0.78
+            }));
+
+            let angle = 0;
+
+            function render3D() {
+                ctx.clearRect(0, 0, width, height);
+
+                // Deep radial atmosphere
+                const bgGrad = ctx.createRadialGradient(width * 0.5, height * 0.25, 30, width * 0.5, height * 0.5, Math.max(width, height) * 0.85);
+                bgGrad.addColorStop(0, isPlaying ? "rgba(212, 175, 55, 0.14)" : "rgba(212, 175, 55, 0.08)");
+                bgGrad.addColorStop(0.5, "rgba(220, 38, 38, 0.04)");
+                bgGrad.addColorStop(1, "rgba(4, 4, 6, 0.98)");
+                ctx.fillStyle = bgGrad;
+                ctx.fillRect(0, 0, width, height);
+
+                const fov = 520;
+                const cx = width * 0.5 + pointerX * 28;
+                const cy = height * 0.42 + pointerY * 22;
+                angle += isPlaying ? 0.014 : 0.005;
+
+                // 3D Rotating Orbital Rings (Gold & Crimson)
+                const rings = [
+                    { radius: Math.min(width, height) * 0.34, tiltX: 0.95, tiltY: angle, color: "rgba(212, 175, 55, 0.28)" },
+                    { radius: Math.min(width, height) * 0.27, tiltX: -0.75, tiltY: -angle * 1.3, color: "rgba(220, 38, 38, 0.22)" },
+                    { radius: Math.min(width, height) * 0.42, tiltX: 0.45, tiltY: angle * 0.7, color: "rgba(247, 220, 129, 0.16)" }
+                ];
+
+                rings.forEach((ring) => {
+                    ctx.beginPath();
+                    const segs = 72;
+                    for (let i = 0; i <= segs; i++) {
+                        const theta = (i / segs) * Math.PI * 2;
+                        let x = Math.cos(theta) * ring.radius;
+                        let y = Math.sin(theta) * ring.radius;
+                        let z = 0;
+
+                        // Rotate X
+                        const y1 = y * Math.cos(ring.tiltX) - z * Math.sin(ring.tiltX);
+                        const z1 = y * Math.sin(ring.tiltX) + z * Math.cos(ring.tiltX);
+
+                        // Rotate Y
+                        const x2 = x * Math.cos(ring.tiltY) + z1 * Math.sin(ring.tiltY);
+                        const z2 = -x * Math.sin(ring.tiltY) + z1 * Math.cos(ring.tiltY) + 650;
+
+                        const scale = fov / Math.max(120, z2);
+                        const sx = cx + x2 * scale;
+                        const sy = cy + y1 * scale;
+
+                        if (i === 0) ctx.moveTo(sx, sy);
+                        else ctx.lineTo(sx, sy);
+                    }
+                    ctx.strokeStyle = ring.color;
+                    ctx.lineWidth = 1.6;
+                    ctx.stroke();
+                });
+
+                // 3D Perspective Audio Horizon Bars
+                const barCount = 36;
+                const spanWidth = Math.min(width * 0.86, 1100);
+                for (let b = 0; b < barCount; b++) {
+                    const norm = (b / (barCount - 1)) - 0.5;
+                    const x3d = norm * spanWidth;
+                    const z3d = 480 + Math.abs(norm) * 260;
+                    const scale = fov / z3d;
+                    const sx = cx + x3d * scale;
+                    const baseY = height * 0.88;
+
+                    const pulse = isPlaying
+                        ? (26 + Math.abs(Math.sin(angle * 4 + b * 0.45)) * 75)
+                        : (8 + Math.abs(Math.sin(angle * 1.5 + b * 0.35)) * 18);
+
+                    const barH = pulse * scale;
+                    ctx.fillStyle = b % 5 === 0 ? "rgba(220, 38, 38, 0.35)" : "rgba(212, 175, 55, 0.32)";
+                    ctx.fillRect(sx - 3 * scale, baseY - barH, 6 * scale, barH);
+                }
+
+                // 3D Depth Particles
+                particles.forEach((p) => {
+                    p.z -= isPlaying ? 3.2 : 1.1;
+                    if (p.z < 80) p.z = 1100;
+
+                    const scale = fov / p.z;
+                    const sx = cx + p.x * scale;
+                    const sy = cy + p.y * scale;
+                    const r = Math.max(0.6, p.size * scale);
+
+                    ctx.beginPath();
+                    ctx.arc(sx, sy, r, 0, Math.PI * 2);
+                    ctx.fillStyle = p.isCrimson ? "rgba(239, 68, 68, 0.55)" : "rgba(247, 220, 129, 0.65)";
+                    ctx.fill();
+                });
+
+                requestAnimationFrame(render3D);
+            }
+
+            render3D();
+        }
+
+        /* ==================== 3D CARD TILT INTERACTION ==================== */
+        function bind3DTiltEffects() {
+            const cards = document.querySelectorAll(".tilt-3d");
+            cards.forEach((card) => {
+                if (card.dataset.tiltBound === "1") return;
+                card.dataset.tiltBound = "1";
+
+                card.addEventListener("pointermove", (e) => {
+                    if (e.pointerType === "touch") return;
+                    const rect = card.getBoundingClientRect();
+                    const x = e.clientX - rect.left;
+                    const y = e.clientY - rect.top;
+                    const rx = ((y / rect.height) - 0.5) * -7;
+                    const ry = ((x / rect.width) - 0.5) * 7;
+
+                    card.style.setProperty("--mx", `${(x / rect.width) * 100}%`);
+                    card.style.setProperty("--my", `${(y / rect.height) * 100}%`);
+                    card.style.transform = `perspective(900px) rotateX(${rx.toFixed(2)}deg) rotateY(${ry.toFixed(2)}deg) translateY(-2px)`;
+                });
+
+                card.addEventListener("pointerleave", () => {
+                    card.style.transform = "";
+                });
+            });
+        }
+
+        function buildPlatformUrls(track) {
+            const q = encodeURIComponent(`${track.artist} ${track.title}`);
+            return {
+                youtube: track.youtubeUrl,
+                ytmusic: `https://music.youtube.com/search?q=${q}`,
+                spotify: `https://open.spotify.com/search/${q}`,
+                apple: `https://music.apple.com/us/search?term=${q}`,
+                jiosaavn: `https://www.jiosaavn.com/search/song/${q}`,
+                gaana: `https://gaana.com/artist/ishpreet-the-gamer`,
+                amazon: `https://music.amazon.com/search/${q}`
+            };
+        }
+
+        /* ==================== VISUALIZER & REAL YOUTUBE + LOCAL MP3 AUDIO ENGINE (ZERO SYNTHESIS) ==================== */
+        function initVisualizer() {
+            const container = document.getElementById("visualizer-bars");
+            container.innerHTML = "";
+            for (let i = 0; i < BAR_TOTAL; i++) {
+                const bar = document.createElement("div");
+                bar.className = "viz-bar";
+                bar.style.height = "14%";
+                container.appendChild(bar);
+            }
+        }
+
+        function renderVisualizerFrame() {
+            const bars = document.querySelectorAll("#visualizer-bars .viz-bar");
+            const track = tracks[currentTrackIndex];
+            const audioEl = document.getElementById("real-master-audio");
+
+            if (!isPlaying) {
+                bars.forEach((bar, i) => {
+                    bar.style.height = `${12 + (i % 4) * 3}%`;
+                });
+                return;
+            }
+
+            if (track.localAudioUrl && analyserNode && analyserData && audioEl && !audioEl.paused) {
+                analyserNode.getByteFrequencyData(analyserData);
+                bars.forEach((bar, i) => {
+                    const val = analyserData[i % analyserData.length] || 20;
+                    const pct = Math.max(12, Math.min(98, Math.round((val / 255) * 100)));
+                    bar.style.height = `${pct}%`;
+                });
+            } else {
+                const t = performance.now() * 0.004;
+                bars.forEach((bar, i) => {
+                    const wave = Math.sin(t + i * 0.35) * 0.5 + 0.5;
+                    const pct = Math.round(18 + wave * 64);
+                    bar.style.height = `${pct}%`;
+                });
+            }
+
+            vizRaf = requestAnimationFrame(renderVisualizerFrame);
+        }
+
+        function setupRealAudioAnalyser() {
+            const audioEl = document.getElementById("real-master-audio");
+            if (!audioEl || sourceConnected) return;
+            try {
+                const Ctx = window.AudioContext || window.webkitAudioContext;
+                analyserCtx = new Ctx();
+                analyserNode = analyserCtx.createAnalyser();
+                analyserNode.fftSize = 128;
+                analyserData = new Uint8Array(analyserNode.frequencyBinCount);
+                const source = analyserCtx.createMediaElementSource(audioEl);
+                source.connect(analyserNode);
+                analyserNode.connect(analyserCtx.destination);
+                sourceConnected = true;
+            } catch (err) {
+                // Fallback gracefully if Web Audio analyser is restricted
+            }
+        }
+
+        function mountYouTubeIframe(track, autoplay) {
+            const ratioBox = document.getElementById("yt-embed-ratio");
+            if (!ratioBox) return;
+            const sep = track.youtubeEmbedBase.includes("?") ? "&" : "?";
+            const src = `${track.youtubeEmbedBase}${sep}autoplay=${autoplay ? "1" : "0"}&rel=0&playsinline=1`;
+
+            ratioBox.innerHTML = "";
+            const iframe = document.createElement("iframe");
+            iframe.id = "yt-master-iframe";
+            iframe.src = src;
+            iframe.title = `${track.title} — Ishpreet The Gamer (ISHPREET RECORDS)`;
+            iframe.setAttribute("referrerpolicy", "strict-origin-when-cross-origin");
+            iframe.setAttribute("allow", "accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share");
+            iframe.allowFullscreen = true;
+            ratioBox.appendChild(iframe);
+        }
+
+        function clearAllTimers() {
+            if (clockTimer) { clearInterval(clockTimer); clockTimer = null; }
+            if (vizRaf) { cancelAnimationFrame(vizRaf); vizRaf = null; }
+        }
+
+        function toggleLyricsDrawer() {
+            lyricsExpanded = !lyricsExpanded;
+            const content = document.getElementById("lyrics-content");
+            const btn = document.getElementById("toggle-lyrics-btn");
+            if (content) content.classList.toggle("hidden", !lyricsExpanded);
+            if (btn) btn.textContent = lyricsExpanded ? "Hide Lyrics" : "Show Lyrics";
+        }
+
+        function handleLocalAudioUpload(event) {
+            const files = Array.from(event.target.files || []);
+            if (files.length === 0) return;
+
+            let matchedCount = 0;
+            let firstMatchedIndex = -1;
+
+            files.forEach((file) => {
+                const lowerName = file.name.toLowerCase();
+                let matchedTrack = tracks.find(t => lowerName.includes(t.matchKeyword));
+                if (!matchedTrack && files.length === 1) {
+                    matchedTrack = tracks[currentTrackIndex];
+                }
+                if (matchedTrack) {
+                    if (matchedTrack.localAudioUrl) {
+                        URL.revokeObjectURL(matchedTrack.localAudioUrl);
+                    }
+                    matchedTrack.localAudioUrl = URL.createObjectURL(file);
+                    matchedTrack.localFileName = file.name;
+                    matchedCount++;
+                    if (firstMatchedIndex === -1) {
+                        firstMatchedIndex = matchedTrack.id;
+                    }
+                }
+            });
+
+            if (firstMatchedIndex !== -1) {
+                currentTrackIndex = firstMatchedIndex;
+                elapsedSec = 0;
+                startPlayback();
+                showToast(`Loaded ${matchedCount} local .MP3 master file${matchedCount > 1 ? "s" : ""}! Playing "${tracks[currentTrackIndex].title}"`);
+            } else {
+                const track = tracks[currentTrackIndex];
+                if (track.localAudioUrl) URL.revokeObjectURL(track.localAudioUrl);
+                track.localAudioUrl = URL.createObjectURL(files[0]);
+                track.localFileName = files[0].name;
+                elapsedSec = 0;
+                startPlayback();
+                showToast(`Attached "${files[0].name}" to "${track.title}"`);
+            }
+        }
+
+        function startPlayback() {
+            clearAllTimers();
+            const track = tracks[currentTrackIndex];
+            const audioEl = document.getElementById("real-master-audio");
+            const embedShell = document.getElementById("yt-embed-shell");
+            const statusBanner = document.getElementById("master-file-status");
+            isPlaying = true;
+
+            if (track.localAudioUrl && audioEl) {
+                // Mode 2: Local .MP3 Master File Playback with Real AnalyserNode Visualizer
+                if (embedShell) embedShell.classList.add("hidden");
+                setupRealAudioAnalyser();
+                if (analyserCtx && analyserCtx.state === "suspended") {
+                    analyserCtx.resume();
+                }
+
+                // Compare absolute URLs so resuming a paused song continues where it left off
+                const targetSrc = new URL(track.localAudioUrl, window.location.href).href;
+                if (audioEl.src !== targetSrc) {
+                    audioEl.src = targetSrc;
+                    audioEl.load();
+                    if (elapsedSec > 0) {
+                        audioEl.addEventListener("loadedmetadata", () => { audioEl.currentTime = elapsedSec; }, { once: true });
+                    }
+                }
+                audioEl.volume = isMuted ? 0 : volumeLevel;
+                audioEl.play().catch((err) => {
+                    if (err && err.name === "AbortError") return;
+                    isPlaying = false;
+                    clearAllTimers();
+                    syncDeckUI();
+                    renderVisualizerFrame();
+                    showToast("Couldn't start \"" + track.title + "\" — tap Play Song again");
+                });
+
+                if (statusBanner) {
+                    statusBanner.innerHTML = `Now Playing Official Master: <strong>${track.title}</strong> &bull; Want to swap in your own <strong>.MP3</strong> files?`;
+                }
+            } else {
+                // Mode 1: Real Official YouTube Master Embed + Direct YouTube App Launcher (Zero Synthetic Audio)
+                if (audioEl) {
+                    audioEl.pause();
+                }
+                if (embedShell) embedShell.classList.remove("hidden");
+                mountYouTubeIframe(track, true);
+
+                if (statusBanner) {
+                    statusBanner.innerHTML = `Streaming Official YouTube Release: <strong>${track.title}</strong> &bull; Or load local <strong>.MP3</strong> files:`;
+                }
+            }
+
+            clockTimer = setInterval(() => {
+                if (track.localAudioUrl && audioEl && !audioEl.paused && !isNaN(audioEl.duration) && audioEl.duration > 0) {
+                    elapsedSec = Math.floor(audioEl.currentTime);
+                    track.durationSec = Math.floor(audioEl.duration);
+                    track.durationText = formatTime(track.durationSec);
+                } else {
+                    elapsedSec++;
+                }
+
+                if (elapsedSec >= track.durationSec) {
+                    nextTrack();
+                    return;
+                }
+                syncProgressDisplay();
+            }, 1000);
+
+            syncDeckUI();
+            renderVisualizerFrame();
+        }
+
+        function pausePlayback() {
+            isPlaying = false;
+            clearAllTimers();
+            const track = tracks[currentTrackIndex];
+            const audioEl = document.getElementById("real-master-audio");
+            if (audioEl) {
+                audioEl.pause();
+            }
+            if (!track.localAudioUrl) {
+                mountYouTubeIframe(track, false);
+            }
+            syncDeckUI();
+            renderVisualizerFrame();
+        }
+
+        function togglePlayPause() {
+            if (isPlaying) {
+                pausePlayback();
+                showToast("Paused: " + tracks[currentTrackIndex].title);
+            } else {
+                startPlayback();
+                showToast("Playing Official Release: " + tracks[currentTrackIndex].title + " — Ishpreet The Gamer");
+            }
+        }
+
+        function playSongById(id) {
+            if (currentTrackIndex === id && isPlaying) {
+                pausePlayback();
+                return;
+            }
+            currentTrackIndex = id;
+            elapsedSec = 0;
+            startPlayback();
+            const deck = document.getElementById("studio-deck");
+            if (deck) {
+                deck.scrollIntoView({ behavior: "smooth", block: "nearest" });
+            }
+            showToast("Playing Official Song: " + tracks[id].title + " (" + tracks[id].durationText + ")");
+        }
+
+        function nextTrack() {
+            currentTrackIndex = (currentTrackIndex + 1) % tracks.length;
+            elapsedSec = 0;
+            startPlayback();
+        }
+
+        function prevTrack() {
+            currentTrackIndex = (currentTrackIndex - 1 + tracks.length) % tracks.length;
+            elapsedSec = 0;
+            startPlayback();
+        }
+
+        function setVolume(val) {
+            volumeLevel = Number(val) / 100;
+            isMuted = volumeLevel === 0;
+            const audioEl = document.getElementById("real-master-audio");
+            if (audioEl) {
+                audioEl.volume = volumeLevel;
+            }
+            document.getElementById("mute-btn").textContent = isMuted ? "MUTE" : "VOL";
+        }
+
+        function toggleMute() {
+            const slider = document.getElementById("volume-slider");
+            const audioEl = document.getElementById("real-master-audio");
+            if (isMuted) {
+                isMuted = false;
+                const val = volumeLevel > 0 ? Math.round(volumeLevel * 100) : 85;
+                slider.value = val;
+                setVolume(val);
+            } else {
+                isMuted = true;
+                if (audioEl) audioEl.volume = 0;
+                document.getElementById("mute-btn").textContent = "MUTE";
+            }
+        }
+
+        function seekTrack(sec) {
+            elapsedSec = Number(sec);
+            const audioEl = document.getElementById("real-master-audio");
+            if (audioEl && !isNaN(audioEl.duration) && audioEl.duration > 0) {
+                audioEl.currentTime = elapsedSec;
+            }
+            syncProgressDisplay();
+        }
+
+        function formatTime(sec) {
+            const m = Math.floor(sec / 60);
+            const s = Math.floor(sec % 60);
+            return m + ":" + (s < 10 ? "0" : "") + s;
+        }
+
+        function syncProgressDisplay() {
+            const track = tracks[currentTrackIndex];
+            const scrubber = document.getElementById("progress-scrubber");
+            scrubber.max = track.durationSec;
+            scrubber.value = elapsedSec;
+            document.getElementById("time-elapsed").textContent = formatTime(elapsedSec);
+            document.getElementById("time-duration").textContent = track.durationText;
+        }
+
+        function setDistributorFilter(filter) {
+            activeFilter = filter;
+            ["all", "swalay", "partner"].forEach(key => {
+                const btn = document.getElementById("filter-" + key);
+                if (btn) {
+                    btn.classList.toggle("active", key === filter);
+                }
+            });
+            renderTracksGrid();
+        }
+
+        function renderTracksGrid() {
+            const grid = document.getElementById("tracks-grid");
+            const filtered = tracks.filter(t => activeFilter === "all" || t.distributorCategory === activeFilter);
+
+            grid.innerHTML = filtered.map(track => {
+                const isCurrent = track.id === currentTrackIndex;
+                const isSwalay = track.distributorCategory === "swalay";
+                const urls = buildPlatformUrls(track);
+
+                return `
+                    <article class="track-card tilt-3d ${isCurrent ? "active-track" : ""}">
+                        <div class="track-cover">
+                            <div class="track-cover-top">
+                                <span class="badge-tag ${isSwalay ? "badge-swalay" : "badge-partner"}">${track.badge}</span>
+                                <span class="badge-tag badge-neutral">${track.durationText} &bull; ${track.releaseDate}</span>
+                            </div>
+                            <div>
+                                <h3 class="track-cover-title">${track.title}</h3>
+                                <div class="track-cover-sub">${track.artist} &bull; ${track.musicalKey}</div>
+                            </div>
+                        </div>
+                        <div class="track-body">
+                            <div class="track-credits">
+                                <div class="track-manager">${track.manager}</div>
+                                <div>
+                                    <span class="badge-tag ${isSwalay ? "badge-swalay" : "badge-partner"}">${track.distributorLabel}</span>
+                                </div>
+                            </div>
+                            <div class="track-actions">
+                                <button type="button" class="btn-gold" style="width:100%;" onclick="playSongById(${track.id})">
+                                    ${isCurrent && isPlaying ? "&#10074;&#10074; Playing Now (Pause)" : "&#9654; Play Song"}
+                                </button>
+                                <div class="mini-platforms">
+                                    <a href="${urls.youtube}" target="_blank" rel="noopener noreferrer" class="mini-platform-link">YouTube</a>
+                                    <a href="${urls.ytmusic}" target="_blank" rel="noopener noreferrer" class="mini-platform-link">YT Music</a>
+                                    <a href="${urls.spotify}" target="_blank" rel="noopener noreferrer" class="mini-platform-link">Spotify</a>
+                                    <a href="${urls.apple}" target="_blank" rel="noopener noreferrer" class="mini-platform-link">Apple</a>
+                                </div>
+                            </div>
+                        </div>
+                    </article>
+                `;
+            }).join("");
+
+            bind3DTiltEffects();
+        }
+
+        function syncDeckUI() {
+            const track = tracks[currentTrackIndex];
+            const urls = buildPlatformUrls(track);
+
+            document.getElementById("deck-badge").textContent = track.badge;
+
+            const distEl = document.getElementById("deck-distributor");
+            distEl.textContent = track.distributorLabel;
+            distEl.className = "badge-tag " + (track.distributorCategory === "swalay" ? "badge-swalay" : "badge-partner");
+
+            document.getElementById("deck-specs").textContent = `${track.releaseDate} • ${track.bpm} BPM • ${track.musicalKey}`;
+            document.getElementById("deck-title").textContent = track.title;
+            document.getElementById("deck-artist").textContent = `${track.artist} • ${track.manager}`;
+            document.getElementById("track-counter").textContent = `Track ${currentTrackIndex + 1} of ${tracks.length}`;
+            document.getElementById("stream-panel-heading").textContent = `Official Master Links — "${track.title}":`;
+
+            const ytModeBadge = document.getElementById("yt-mode-badge");
+            const ytDirectWatchBtn = document.getElementById("yt-direct-watch-btn");
+            if (ytModeBadge) {
+                ytModeBadge.textContent = `${track.title} • Official YouTube Release (${track.badge})`;
+            }
+            if (ytDirectWatchBtn) {
+                ytDirectWatchBtn.href = track.youtubeUrl;
+            }
+
+            const lyricsTitleEl = document.getElementById("lyrics-track-name");
+            const lyricsContentEl = document.getElementById("lyrics-content");
+            if (lyricsTitleEl) lyricsTitleEl.textContent = track.title;
+            if (lyricsContentEl) lyricsContentEl.textContent = track.lyrics;
+
+            const vinyl = document.getElementById("vinyl-disc");
+            const dot = document.getElementById("status-dot");
+            const statusText = document.getElementById("status-text");
+            const playIcon = document.getElementById("deck-play-icon");
+            const playLabel = document.getElementById("deck-play-label");
+
+            if (isPlaying) {
+                vinyl.classList.add("spinning");
+                dot.classList.add("live");
+                statusText.textContent = `LIVE PLAYING: ${track.title.toUpperCase()} (${track.durationText})`;
+                playIcon.innerHTML = "&#10074;&#10074;";
+                playLabel.textContent = "Pause";
+            } else {
+                vinyl.classList.remove("spinning");
+                dot.classList.remove("live");
+                statusText.textContent = `READY: ${track.title.toUpperCase()} (${track.durationText})`;
+                playIcon.innerHTML = "&#9654;";
+                playLabel.textContent = "Play Song";
+            }
+
+            document.getElementById("deck-link-youtube").href = urls.youtube;
+            document.getElementById("deck-link-ytmusic").href = urls.ytmusic;
+            document.getElementById("deck-link-spotify").href = urls.spotify;
+            document.getElementById("deck-link-apple").href = urls.apple;
+            document.getElementById("deck-link-jiosaavn").href = urls.jiosaavn;
+            document.getElementById("deck-link-gaana").href = urls.gaana;
+            document.getElementById("deck-link-amazon").href = urls.amazon;
+
+            syncProgressDisplay();
+            renderTracksGrid();
+        }
+
+        /* ==================== NAVIGATION, MODALS, CLIPBOARD & LOGO EXPORTS ==================== */
+        function toggleMobileMenu(forceState) {
+            const drawer = document.getElementById("mobile-menu");
+            if (typeof forceState === "boolean") {
+                drawer.classList.toggle("hidden", !forceState);
+            } else {
+                drawer.classList.toggle("hidden");
+            }
+        }
+
+        function openBookingModal() {
+            document.getElementById("booking-modal").classList.remove("hidden");
+        }
+
+        function closeBookingModal() {
+            document.getElementById("booking-modal").classList.add("hidden");
+        }
+
+        function openLogoKitModal() {
+            document.getElementById("logokit-modal").classList.remove("hidden");
+        }
+
+        function closeLogoKitModal() {
+            document.getElementById("logokit-modal").classList.add("hidden");
+        }
+
+        function copyTextFallback(text, successMessage) {
+            const temp = document.createElement("textarea");
+            temp.value = text;
+            document.body.appendChild(temp);
+            temp.select();
+            document.execCommand("copy");
+            document.body.removeChild(temp);
+            showToast(successMessage);
+        }
+
+        function copyArtistId() {
+            copyTextFallback("@ishpreetthegamer", "Copied Official Artist ID: @ishpreetthegamer");
+        }
+
+        function copyDomain() {
+            copyTextFallback("ISHPREETRECORDS.PUBLICVM.COM", "Copied Official Domain: ISHPREETRECORDS.PUBLICVM.COM");
+        }
+
+        function handleSubmission(e) {
+            e.preventDefault();
+            e.target.reset();
+            showToast("Song Release / Management application sent to ISHPREET RECORDS!");
+        }
+
+        function handleInquirySubmit(e) {
+            e.preventDefault();
+            e.target.reset();
+            closeBookingModal();
+            showToast("Direct inquiry sent to ISHPREET RECORDS (@ishpreetthegamer)!");
+        }
+
+        function downloadOfficialSVG() {
+            const svgEl = document.getElementById("hero-official-logo");
+            const serializer = new XMLSerializer();
+            const source = serializer.serializeToString(svgEl);
+            const blob = new Blob([source], { type: "image/svg+xml;charset=utf-8" });
+            const url = URL.createObjectURL(blob);
+            const a = document.createElement("a");
+            a.href = url;
+            a.download = "ISHPREET-RECORDS-Official-Logo.svg";
+            document.body.appendChild(a);
+            a.click();
+            document.body.removeChild(a);
+            URL.revokeObjectURL(url);
+            showToast("Downloaded ISHPREET-RECORDS-Official-Logo.svg");
+        }
+
+        function downloadOfficialPNG() {
+            const svgEl = document.getElementById("hero-official-logo");
+            const serializer = new XMLSerializer();
+            const source = serializer.serializeToString(svgEl);
+            const svgBlob = new Blob([source], { type: "image/svg+xml;charset=utf-8" });
+            const url = URL.createObjectURL(svgBlob);
+            const img = new Image();
+            img.onload = function () {
+                const canvas = document.createElement("canvas");
+                canvas.width = 1500;
+                canvas.height = 1100;
+                const ctx = canvas.getContext("2d");
+                ctx.fillStyle = "#000000";
+                ctx.fillRect(0, 0, canvas.width, canvas.height);
+                ctx.drawImage(img, 0, 0, canvas.width, canvas.height);
+                URL.revokeObjectURL(url);
+                canvas.toBlob(function (pngBlob) {
+                    const pngUrl = URL.createObjectURL(pngBlob);
+                    const a = document.createElement("a");
+                    a.href = pngUrl;
+                    a.download = "ISHPREET-RECORDS-Official-Logo-HD.png";
+                    document.body.appendChild(a);
+                    a.click();
+                    document.body.removeChild(a);
+                    URL.revokeObjectURL(pngUrl);
+                    showToast("Downloaded ISHPREET-RECORDS-Official-Logo-HD.png (1500x1100)");
+                }, "image/png");
+            };
+            img.src = url;
+        }
+
+        let toastTimer = null;
+        function showToast(msg) {
+            const toast = document.getElementById("toast");
+            toast.textContent = msg;
+            toast.classList.remove("hidden");
+            if (toastTimer) clearTimeout(toastTimer);
+            toastTimer = setTimeout(() => {
+                toast.classList.add("hidden");
+            }, 3400);
+        }
+
+        document.addEventListener("DOMContentLoaded", () => {
+            init3DStage();
+            initVisualizer();
+            syncDeckUI();
+            bind3DTiltEffects();
+        });
+    </script>
+</body>
+</html>
